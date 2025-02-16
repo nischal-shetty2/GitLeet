@@ -20,7 +20,7 @@ export const Controls: React.FC<ControlsProps> = ({
     <Card>
       <CardContent className="py-6">
         <div className="flex justify-between items-center">
-          {/* <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <span className="text-sm font-medium">Platform Style:</span>
             <div className="flex items-center gap-2">
               <span>GitHub</span>
@@ -32,8 +32,8 @@ export const Controls: React.FC<ControlsProps> = ({
               />
               <span>LeetCode</span>
             </div>
-          </div> */}
-          {/* <div className="flex items-center gap-2">
+          </div>
+          <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Time Range:</span>
             <select
               className="p-2 rounded border bg-background"
@@ -43,7 +43,7 @@ export const Controls: React.FC<ControlsProps> = ({
               <option value={currentYear - 1}>{currentYear - 1}</option>
               <option value={currentYear - 2}>{currentYear - 2}</option>
             </select>
-          </div> */}
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -96,7 +96,7 @@ export const HeatmapGrid = ({
     };
 
     const thresholds = [0, 1, 4, 7, 10];
-    const platformIndex = platform === "github" ? 0 : 1;
+    // const platformIndex = platform === "github" ? 0 : 1;
 
     for (let i = thresholds.length - 1; i >= 0; i--) {
       if (count >= thresholds[i]) {

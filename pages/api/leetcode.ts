@@ -45,5 +45,6 @@ export default async function handler(
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch LeetCode data" });
+    console.error(error);
   }
 }

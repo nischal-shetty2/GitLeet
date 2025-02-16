@@ -1,13 +1,8 @@
-"use server";
+import type { NextApiRequest, NextApiResponse } from "next";
+
 export default async function handler(
-  req: { query: { username: any } },
-  res: {
-    status: (arg0: number) => {
-      (): any;
-      new (): any;
-      json: { (arg0: { error: string }): void; new (): any };
-    };
-  }
+  req: NextApiRequest,
+  res: NextApiResponse
 ) {
   const { username } = req.query;
 
@@ -47,5 +42,6 @@ export default async function handler(
     res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch GitHub data" });
+    console.log(error);
   }
 }

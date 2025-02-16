@@ -15,11 +15,7 @@ export const getStartDate = (
   return date;
 };
 
-export const generateEmptyCalendar = (
-  startDate: Date,
-  weeks: number,
-  platform: "github" | "leetcode"
-) => {
+export const generateEmptyCalendar = (startDate: Date, weeks: number) => {
   const calendar: ActivityData[][] = [];
   const currentDate = new Date(startDate);
 

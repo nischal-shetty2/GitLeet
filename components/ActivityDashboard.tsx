@@ -18,7 +18,7 @@ import { LeetcodeLogo } from "./ui/logo";
 
 const ActivityDashboard = () => {
   const [platform, setPlatform] = useState<"github" | "leetcode">("leetcode");
-  const [timeRange, setTimeRange] = useState<number>(new Date().getFullYear());
+  // const [timeRange, setTimeRange] = useState<number>(new Date().getFullYear());
   const [githubUsername, setGithubUsername] = useState("nischal-shetty2");
   const [leetcodeUsername, setLeetcodeUsername] = useState("nischal_shetty");
   const { toast } = useToast();
@@ -41,7 +41,7 @@ const ActivityDashboard = () => {
         variant: "destructive",
       });
     }
-  }, [github.error, leetcode.error]);
+  }, [github.error, leetcode.error, toast]);
 
   const isLoading = github.loading || leetcode.loading;
 
@@ -60,7 +60,7 @@ const ActivityDashboard = () => {
     );
 
     return calculateStreaks(deduplicatedActivities);
-  }, [github.data, leetcode.data, timeRange]);
+  }, [github.data, leetcode.data]);
 
   return (
     <div className="min-h-screen p-8 bg-background">

@@ -16,10 +16,10 @@ export const transformGitHubData = (
   try {
     // Flatten the weeks and map contribution days
     return jsonData.data.user.contributionsCollection.contributionCalendar.weeks
-      .flatMap((week: any) => week.contributionDays || []) // Handle missing contributionDays
-      .map((day: any) => ({
+      .flatMap((week) => week.contributionDays || [])
+      .map((day) => ({
         date: day.date,
-        count: day.contributionCount || 0, // Default to 0 if contributionCount is missing
+        count: day.contributionCount || 0,
       }));
   } catch (error) {
     console.error("Error transforming GitHub data:", error);
