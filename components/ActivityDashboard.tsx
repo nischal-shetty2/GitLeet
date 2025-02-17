@@ -98,15 +98,17 @@ const ActivityDashboard = () => {
             ) : (
               <div className="flex justify-center">
                 <div className="flex gap-2">
-                  <div className="flex flex-col gap-1 pt-5 text-sm text-gray-500">
-                    {days.map((day, i) => (
-                      <div key={day} className="h-3 flex items-center">
-                        {i % 2 === 0 && day}
-                      </div>
-                    ))}
-                  </div>
+                  {platform === "github" && (
+                    <div className="flex flex-col gap-1 pt-5 text-sm text-gray-500">
+                      {days.map((day, i) => (
+                        <div key={day} className="h-3 flex items-center">
+                          {i % 2 === 0 && day}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex flex-col">
-                    <MonthLabels />
+                    {platform === "github" && <MonthLabels />}
                     <HeatmapGrid
                       github={github}
                       leetcode={leetcode}
