@@ -1,5 +1,6 @@
 "use server";
 import type { NextApiRequest, NextApiResponse } from "next";
+import axios from "axios";
 
 interface LeetCodeResponse {
   data: {
@@ -24,10 +25,9 @@ export default async function handler(
   }
 
   try {
-    const response = await fetch("https://leetcode.com/graphql", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    const response = await axios.post(
+      "https://leetcode.com/graphql",
+      {
         query: `
                     query ($username: String!) {
                         matchedUser(username: $username) {
@@ -36,11 +36,14 @@ export default async function handler(
                     }
                 `,
         variables: { username },
-      }),
-    });
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
 
-    const data: LeetCodeResponse = await response.json();
-    res.status(200).json(data);
+    console.log(response.data);
+    res.status(200).json(response.data);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch LeetCode data" });
     console.error(error);

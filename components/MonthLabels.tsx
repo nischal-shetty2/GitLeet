@@ -1,5 +1,5 @@
+import React, { useMemo } from "react";
 import { months } from "@/lib/calendarUtils";
-import { useMemo } from "react";
 
 export const MonthLabels = () => {
   const monthLabels = useMemo(() => {
@@ -16,10 +16,17 @@ export const MonthLabels = () => {
       const month = weekDate.getMonth();
 
       if (month !== currentMonth) {
-        labels.push({
-          month: months[month],
-          position: weekIndex,
-        });
+        // Don't add an extra month label if we've looped back to the current month
+        const isExtraCurrentMonthLabel =
+          month === new Date().getMonth() &&
+          labels.some((l) => l.month === months[month]);
+
+        if (!isExtraCurrentMonthLabel) {
+          labels.push({
+            month: months[month],
+            position: weekIndex,
+          });
+        }
         currentMonth = month;
       }
     }
@@ -27,23 +34,25 @@ export const MonthLabels = () => {
     return labels;
   }, []);
 
+  // Now we'll use percentages for positioning which will be more responsive
   return (
-    <div className="flex mb-1 text-sm text-gray-500">
-      {monthLabels.map((label, i) => (
-        <div
-          key={i}
-          className="text-xs"
-          style={{
-            marginLeft:
-              i === 0
-                ? 0
-                : `${
-                    (label.position - monthLabels[i - 1]?.position + 0.3) * 10
-                  }px`,
-          }}>
-          {label.month}
-        </div>
-      ))}
+    <div className="flex mb-1 text-xs sm:text-sm text-gray-500 relative h-5 w-full">
+      {monthLabels.map((label, i) => {
+        // We have 53 weeks total, so calculate position as percentage
+        const positionPercent = (label.position / 53) * 100;
+
+        return (
+          <div
+            key={i}
+            className="absolute whitespace-nowrap transform -translate-x-1/2"
+            style={{ left: `${positionPercent}%` }}>
+            <span className="hidden sm:inline">{label.month}</span>
+            <span className="inline sm:hidden">
+              {label.month.substring(0, 3)}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 };

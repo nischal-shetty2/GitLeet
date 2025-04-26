@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import axios from "axios";
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,19 +30,20 @@ export default async function handler(
       }
     `;
 
-    const response = await fetch("https://api.github.com/graphql", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ query, variables: { login: username } }),
-    });
+    const response = await axios.post(
+      "https://api.github.com/graphql",
+      { query, variables: { login: username } },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    const data = await response.json();
-    res.status(200).json(data);
+    res.status(200).json(response.data);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch GitHub data" });
-    console.log(error);
+    console.error(error);
   }
 }

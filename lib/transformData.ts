@@ -7,20 +7,22 @@ export const transformGitHubData = (
     throw new Error(jsonData.errors[0].message);
   }
 
-  if (
-    !jsonData?.data?.user?.contributionsCollection?.contributionCalendar?.weeks
-  ) {
+  const data =
+    jsonData?.data?.user?.contributionsCollection?.contributionCalendar?.weeks;
+
+  if (!data) {
     throw new Error("Invalid GitHub data");
   }
-
   try {
     // Flatten the weeks and map contribution days
-    return jsonData.data.user.contributionsCollection.contributionCalendar.weeks
+    const response = data
       .flatMap((week) => week.contributionDays || [])
       .map((day) => ({
         date: day.date,
         count: day.contributionCount || 0,
       }));
+
+    return response;
   } catch (error) {
     console.error("Error transforming GitHub data:", error);
     return [];

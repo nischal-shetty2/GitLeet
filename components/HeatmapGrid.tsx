@@ -1,10 +1,6 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 
-const getDaysInMonth = (year: number, month: number) => {
-  return new Date(year, month + 1, 0).getDate();
-};
-
 export const HeatmapGrid = ({
   platform,
   github,
@@ -15,91 +11,138 @@ export const HeatmapGrid = ({
   leetcode: LeetCodeDataHook;
 }) => {
   const data = useMemo(() => {
-    // Combine data from both sources
-    const allActivities = [...(github.data || []), ...(leetcode.data || [])];
+    // Make defensive copies of data to avoid reference issues
+    const githubData = github.data ? [...github.data] : [];
+    const leetcodeData = leetcode.data ? [...leetcode.data] : [];
+    
+    // Combine data from both sources with robust date handling
+    const allActivities = [...githubData, ...leetcodeData];
     const activityMap = new Map<string, number>();
+
+    // Ensure consistent date parsing and normalize date format
     allActivities.forEach((activity) => {
-      const dateStr = activity.date;
-      const count = activity.count;
-      activityMap.set(dateStr, (activityMap.get(dateStr) || 0) + count);
+      try {
+        // Create a new Date object to handle various input formats
+        const date = new Date(activity.date);
+
+        // Ensure we have a valid date
+        if (!isNaN(date.getTime())) {
+          // Use ISO format for consistent date formatting
+          const dateStr = date.toISOString().split("T")[0];
+          // Accumulate activity count
+          activityMap.set(
+            dateStr,
+            (activityMap.get(dateStr) || 0) + activity.count
+          );
+        }
+      } catch (err) {
+        console.error("Invalid date format:", activity.date);
+      }
     });
-    const combined = Array.from(activityMap.entries()).map(([date, count]) => ({
-      date,
-      count,
-    }));
+
+    const combined = Array.from(activityMap.entries())
+      .map(([date, count]) => ({
+        date,
+        count,
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     if (platform === "github") {
-      // GitHub weekly view logic using combined data
+      // GitHub weekly view logic with improved date handling
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - 365);
+
+      // Ensure start date is the most recent Sunday (first day of GitHub week)
       while (startDate.getDay() !== 0) {
         startDate.setDate(startDate.getDate() - 1);
       }
 
       const endDate = new Date();
+      // Initialize weeks with empty data
       const weeks: ActivityData[][] = Array(53)
         .fill(null)
-        .map(() => []);
+        .map(() =>
+          Array(7)
+            .fill(null)
+            .map(() => ({ date: "", count: 0 }))
+        );
 
+      // Fill in all dates in the grid
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
         const weekIndex = Math.floor(
           (currentDate.getTime() - startDate.getTime()) /
             (7 * 24 * 60 * 60 * 1000)
         );
-
-        if (weekIndex < 53) {
+        
+        if (weekIndex >= 0 && weekIndex < 53) {
           const dayOfWeek = currentDate.getDay();
           const dateStr = currentDate.toISOString().split("T")[0];
-          weeks[weekIndex][dayOfWeek] = {
-            date: dateStr,
-            count: 0,
-          };
+
+          // Ensure the slot exists before assignment
+          if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
+            weeks[weekIndex][dayOfWeek] = {
+              date: dateStr,
+              count: 0,
+            };
+          }
         }
+        
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
-      // Merge combined data into weeks
+      // Merge activity data into weeks with robust date matching
       combined.forEach((activity) => {
-        const activityDate = new Date(activity.date);
-        const weekIndex = Math.floor(
-          (activityDate.getTime() - startDate.getTime()) /
-            (7 * 24 * 60 * 60 * 1000)
-        );
-        if (weekIndex >= 0 && weekIndex < 53) {
-          const dayOfWeek = activityDate.getDay();
-          if (!weeks[weekIndex][dayOfWeek]) {
-            weeks[weekIndex][dayOfWeek] = { date: activity.date, count: 0 };
+        try {
+          const activityDate = new Date(activity.date);
+          
+          if (!isNaN(activityDate.getTime())) {
+            const weekIndex = Math.floor(
+              (activityDate.getTime() - startDate.getTime()) /
+                (7 * 24 * 60 * 60 * 1000)
+            );
+
+            if (weekIndex >= 0 && weekIndex < 53) {
+              const dayOfWeek = activityDate.getDay();
+
+              // Additional null check and assignment
+              if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
+                weeks[weekIndex][dayOfWeek].count += activity.count;
+              }
+            }
           }
-          weeks[weekIndex][dayOfWeek].count += activity.count;
+        } catch (err) {
+          console.error("Error processing activity date:", activity.date);
         }
       });
 
       return { type: "github", weeks };
     } else {
-      // FIXED LeetCode monthly view logic
+      // LeetCode monthly view logic with improved date handling
       const months: { name: string; days: ActivityData[] }[] = [];
       const endDate = new Date();
       const startDate = new Date(endDate);
       startDate.setMonth(startDate.getMonth() - 11);
-      startDate.setDate(1);
+      startDate.setDate(1); // Start at the first day of month
 
       let currentDate = new Date(startDate);
 
+      // Fill in the calendar with empty data for all months
       while (currentDate <= endDate) {
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
 
-        // Get days in month using UTC
+        // Get days in month using last day calculation
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         const monthDays: ActivityData[] = [];
         for (let day = 1; day <= daysInMonth; day++) {
-          // Create date string in local format (YYYY-MM-DD)
+          // Ensure consistent date formatting with padded months and days
           const dateStr = `${year}-${String(month + 1).padStart(
             2,
             "0"
           )}-${String(day).padStart(2, "0")}`;
+          
           monthDays.push({ date: dateStr, count: 0 });
         }
 
@@ -108,28 +151,44 @@ export const HeatmapGrid = ({
           days: monthDays,
         });
 
+        // Move to first day of next month
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
 
-      // Improved data merging with direct date parsing
+      // Create a month lookup map for faster access
       const monthMap = new Map<string, number>();
       months.forEach((m, index) => {
         if (m.days.length > 0) {
+          // Use YYYY-MM as key
           const key = m.days[0].date.slice(0, 7);
           monthMap.set(key, index);
         }
       });
 
+      // Merge activity data into months
       combined.forEach((activity) => {
-        const key = activity.date.slice(0, 7);
-        const monthIndex = monthMap.get(key);
-        if (monthIndex !== undefined) {
-          // Directly extract day from date string
-          const day = parseInt(activity.date.split("-")[2], 10);
-          const dayIndex = day - 1;
-          if (months[monthIndex].days[dayIndex]) {
-            months[monthIndex].days[dayIndex].count += activity.count;
+        try {
+          // Extract YYYY-MM from date
+          const key = activity.date.slice(0, 7);
+          const monthIndex = monthMap.get(key);
+
+          if (monthIndex !== undefined) {
+            // Extract day from YYYY-MM-DD format
+            const parts = activity.date.split("-");
+            if (parts.length === 3) {
+              const day = parseInt(parts[2], 10);
+              
+              // Ensure day is within valid range (1-based day in array with 0-based index)
+              if (day > 0 && day <= months[monthIndex].days.length) {
+                const dayIndex = day - 1;
+                if (months[monthIndex].days[dayIndex]) {
+                  months[monthIndex].days[dayIndex].count += activity.count;
+                }
+              }
+            }
           }
+        } catch (err) {
+          console.error("Error processing activity date:", activity.date);
         }
       });
 
@@ -158,10 +217,10 @@ export const HeatmapGrid = ({
     const darkColors = {
       github: [
         "dark:bg-gray-800",
-        "dark:bg-green-900",
-        "dark:bg-green-700",
-        "dark:bg-green-500",
-        "dark:bg-green-300",
+        "dark:bg-lime-900",
+        "dark:bg-lime-700",
+        "dark:bg-lime-500",
+        "dark:bg-lime-300",
       ],
       leetcode: [
         "dark:bg-gray-800",
@@ -172,6 +231,7 @@ export const HeatmapGrid = ({
       ],
     };
 
+    // Define thresholds for color intensity
     const thresholds = [0, 1, 4, 7, 10];
 
     for (let i = thresholds.length - 1; i >= 0; i--) {
@@ -191,17 +251,17 @@ export const HeatmapGrid = ({
   };
 
   return (
-    <div className="w-full overflow-x-auto">
-      <div className="md:min-w-[750px] lg:min-w-[900px]">
+    <div className="w-full overflow-x-auto pb-1">
+      <div className={platform === "github" ? "inline-block" : "w-full"}>
         {data.type === "github" ? (
-          // GitHub weekly view
-          <div className="flex gap-1">
+          // GitHub weekly view - horizontally scrollable on mobile
+          <div className="flex flex-nowrap gap-[2px] sm:gap-1 mx-auto">
             {data.weeks?.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col gap-1">
+              <div key={weekIndex} className="flex flex-col gap-[2px] sm:gap-1">
                 {week.map((day, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
-                    className={`w-3 h-3 rounded transition-colors duration-200 hover:ring-2 hover:ring-offset-2 hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                    className={`w-[6px] h-[6px] sm:w-2 sm:h-2 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 sm:hover:ring-2 hover:ring-offset-1 sm:hover:ring-offset-2 hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
                       day?.count || 0
                     )}`}
                     title={
@@ -215,22 +275,25 @@ export const HeatmapGrid = ({
             ))}
           </div>
         ) : (
-          // LeetCode monthly view
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+          // LeetCode monthly view - adding more horizontal spacing on mobile
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2 sm:gap-3 md:gap-4 max-w-fit mx-auto">
             {data.months?.map((month, monthIndex) => {
-              const columnCount = Math.ceil(month.days.length / 7);
               const columns = chunkedDays(month.days, 7);
 
               return (
                 <div key={monthIndex} className="flex flex-col">
-                  <div className="text-sm font-medium mb-2">{month.name}</div>
-                  <div className="flex gap-1">
+                  <div className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">
+                    {month.name}
+                  </div>
+                  <div className="flex gap-[3px] sm:gap-[3px]">
                     {columns.map((column, colIndex) => (
-                      <div key={colIndex} className="flex flex-col gap-1">
+                      <div
+                        key={colIndex}
+                        className="flex flex-col gap-[3px] sm:gap-[3px]">
                         {column.map((day, dayIndex) => (
                           <div
                             key={dayIndex}
-                            className={`w-3 h-3 rounded transition-colors duration-200 hover:ring-2 hover:ring-offset-2 hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                            className={`w-[10px] h-[10px] sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 sm:hover:ring-2 hover:ring-offset-1 sm:hover:ring-offset-2 hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
                               day.count
                             )}`}
                             title={`${day.date}: ${day.count} activities`}

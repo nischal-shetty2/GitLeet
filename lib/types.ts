@@ -38,6 +38,7 @@ export interface GitHubDataHook {
   setData: React.Dispatch<React.SetStateAction<ActivityData[]>>;
   loading: boolean;
   error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
   fetchData: () => Promise<void>;
 }
 
@@ -46,5 +47,6 @@ export interface LeetCodeDataHook {
   setData: React.Dispatch<React.SetStateAction<ActivityData[]>>;
   loading: boolean;
   error: string | null;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
   fetchData: () => Promise<void>;
 }

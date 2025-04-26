@@ -1,6 +1,7 @@
 "use client";
 import { Github } from "lucide-react";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 export const Footer = () => {
   const { theme } = useTheme();
@@ -14,44 +15,62 @@ export const Footer = () => {
       <div className="max-w-screen-xl mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div
-            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-            © Gitleet™ By -{" "}
-            <a className=" text-blue-800 underline" href="https://zreo.xyz">
-              Nischal Shetty
-            </a>
+            className={`text-center md:text-left text-sm ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            } mb-2 md:mb-0`}>
+            <p>
+              © {new Date().getFullYear()} Gitleet™ By -{" "}
+              <Link
+                href="https://zreo.xyz"
+                className="text-blue-800 dark:text-blue-400 underline hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer">
+                Nischal Shetty
+              </Link>
+            </p>
+            <p className="text-xs mt-1">
+              Track your GitHub and LeetCode contributions in one place
+            </p>
           </div>
 
-          <nav>
-            <ul className="flex items-center gap-6">
+          <nav className="w-full md:w-auto" aria-label="Footer Navigation">
+            <ul className="flex flex-wrap justify-center md:justify-end items-center gap-4 md:gap-6">
               <li>
-                <a
+                <Link
                   href="mailto:nischal.shetty02@gmail.com"
                   className={`text-sm ${
                     isDark ? "text-gray-400" : "text-gray-600"
                   } hover:underline ${
                     isDark ? "hover:text-gray-100" : "hover:text-gray-900"
-                  } transition-colors`}>
+                  } transition-colors`}
+                  aria-label="Contact via Email">
                   Contact Me
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" aria-label="GitHub">
+                <Link
+                  href="https://github.com/nischal-shetty2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit GitHub Repository">
                   <Github
-                    className={`w-5 h-5 rounded-sm transition duration-200 ${
+                    className={`w-7 h-7 p-0.5 rounded-sm transition duration-200 ${
                       isDark
                         ? "hover:bg-gray-700"
                         : "hover:bg-white hover:invert"
                     }`}
                   />
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  href="https://x.com/NischalShetty02"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`transition-colors ${
                     isDark ? "text-gray-400" : "text-gray-600"
                   } ${isDark ? "hover:text-gray-100" : "hover:text-gray-900"}`}
-                  aria-label="Twitter/X">
+                  aria-label="Twitter/X Profile">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="25"
@@ -74,7 +93,7 @@ export const Footer = () => {
                       </clipPath>
                     </defs>
                   </svg>
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
