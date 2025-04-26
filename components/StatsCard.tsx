@@ -16,17 +16,21 @@ export const StatsCard = ({
   value: string | number;
   helpText?: string;
 }) => (
-  <Card>
-    <CardHeader>
-      <div className=" flex justify-between items-center">
-        <CardTitle>{title}</CardTitle>
+  <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+    <CardHeader className="bg-gradient-to-r from-background to-muted/20 pb-2">
+      <div className="flex justify-between items-center">
+        <CardTitle className="text-base font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
         {helpText && (
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
-                <InfoIcon size={15} />
+              <TooltipTrigger asChild>
+                <button className="rounded-full p-1 hover:bg-muted transition-colors">
+                  <InfoIcon size={14} className="text-muted-foreground" />
+                </button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className="max-w-xs">
                 <p>{helpText}</p>
               </TooltipContent>
             </Tooltip>
@@ -34,8 +38,10 @@ export const StatsCard = ({
         )}
       </div>
     </CardHeader>
-    <CardContent>
-      <div className="text-3xl font-bold">{value}</div>
+    <CardContent className="p-4">
+      <div className="text-3xl font-bold bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent">
+        {value}
+      </div>
     </CardContent>
   </Card>
 );

@@ -6,29 +6,39 @@ import Link from "next/link";
 export const Footer = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const currentYear = new Date().getFullYear();
 
   return (
     <footer
       className={`border-t mt-auto ${
-        isDark ? "bg-zinc-900 border-zinc-700" : "bg-white"
+        isDark
+          ? "bg-zinc-900/50 border-zinc-800"
+          : "bg-white/50 backdrop-blur-sm"
       }`}>
-      <div className="max-w-screen-xl mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="max-w-screen-xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div
-            className={`text-center md:text-left text-sm ${
-              isDark ? "text-gray-400" : "text-gray-600"
-            } mb-2 md:mb-0`}>
-            <p>
-              © {new Date().getFullYear()} Gitleet™ By -{" "}
+            className={`text-center md:text-left ${
+              isDark ? "text-zinc-400" : "text-zinc-600"
+            }`}>
+            <p className="flex items-center justify-center md:justify-start gap-1.5 text-sm font-medium mb-1">
+              © {currentYear}
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent font-bold">
+                Gitleet™
+              </span>
+              By{" "}
               <Link
                 href="https://zreo.xyz"
-                className="text-blue-800 dark:text-blue-400 underline hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+                className="relative group inline-flex items-center"
                 target="_blank"
                 rel="noopener noreferrer">
-                Nischal Shetty
+                <span className="bg-gradient-to-r from-blue-600 dark:from-blue-400 to-blue-500 dark:to-blue-300 bg-clip-text text-transparent transition-all">
+                  Nischal Shetty
+                </span>
+                <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
               </Link>
             </p>
-            <p className="text-xs mt-1">
+            <p className="text-xs text-muted-foreground">
               Track your GitHub and LeetCode contributions in one place
             </p>
           </div>
@@ -39,12 +49,11 @@ export const Footer = () => {
                 <Link
                   href="mailto:nischal.shetty02@gmail.com"
                   className={`text-sm ${
-                    isDark ? "text-gray-400" : "text-gray-600"
-                  } hover:underline ${
-                    isDark ? "hover:text-gray-100" : "hover:text-gray-900"
-                  } transition-colors`}
+                    isDark ? "text-zinc-400" : "text-zinc-600"
+                  } relative group transition-colors`}
                   aria-label="Contact via Email">
-                  Contact Me
+                  <span>Contact Me</span>
+                  <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </Link>
               </li>
               <li>
@@ -52,12 +61,14 @@ export const Footer = () => {
                   href="https://github.com/nischal-shetty2"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Visit GitHub Repository">
+                  aria-label="Visit GitHub Repository"
+                  className="group">
                   <Github
-                    className={`w-7 h-7 p-0.5 rounded-sm transition duration-200 ${
+                    size={20}
+                    className={`transition-all duration-300 ${
                       isDark
-                        ? "hover:bg-gray-700"
-                        : "hover:bg-white hover:invert"
+                        ? "text-zinc-400 group-hover:text-zinc-100"
+                        : "text-zinc-600 group-hover:text-zinc-900"
                     }`}
                   />
                 </Link>
@@ -67,31 +78,20 @@ export const Footer = () => {
                   href="https://x.com/NischalShetty02"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={`transition-colors ${
-                    isDark ? "text-gray-400" : "text-gray-600"
-                  } ${isDark ? "hover:text-gray-100" : "hover:text-gray-900"}`}
+                  className={`transition-all duration-300 group`}
                   aria-label="Twitter/X Profile">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="25"
-                    height="25"
-                    className={`transition duration-200 ${
-                      isDark ? "invert hover:invert-0" : ""
+                    width="20"
+                    height="20"
+                    className={`transition-all duration-300 ${
+                      isDark
+                        ? "text-zinc-400 group-hover:text-zinc-100"
+                        : "text-zinc-600 group-hover:text-zinc-900"
                     }`}
-                    fill="none"
-                    viewBox="0 0 512 512"
-                    id="twitter">
-                    <g clipPath="url(#clip0_84_15697)">
-                      <rect width="512" height="512" fill="#000" rx="60"></rect>
-                      <path
-                        fill="#fff"
-                        d="M355.904 100H408.832L293.2 232.16L429.232 412H322.72L239.296 302.928L143.84 412H90.8805L214.56 270.64L84.0645 100H193.28L268.688 199.696L355.904 100ZM337.328 380.32H366.656L177.344 130.016H145.872L337.328 380.32Z"></path>
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_84_15697">
-                        <rect width="512" height="512" fill="#fff"></rect>
-                      </clipPath>
-                    </defs>
+                    fill="currentColor"
+                    viewBox="0 0 512 512">
+                    <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z" />
                   </svg>
                 </Link>
               </li>

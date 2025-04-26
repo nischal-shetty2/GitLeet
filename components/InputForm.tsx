@@ -79,8 +79,8 @@ export const InputForm = ({
   }, []);
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="transform transition-all duration-300 hover:shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-background to-muted/20 rounded-t-xl">
         <CardTitle id="usernames-section" className="text-xl">
           Enter Usernames
         </CardTitle>
@@ -88,14 +88,15 @@ export const InputForm = ({
           Track your GitHub and LeetCode contributions together
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1 space-y-2">
-            <label htmlFor="github-username" className="text-sm font-medium">
+      <CardContent className="space-y-6 pt-6">
+        <div className="flex flex-col sm:flex-row gap-6">
+          <div className="flex-1 space-y-3 group">
+            <label
+              htmlFor="github-username"
+              className="text-sm font-medium flex items-center gap-2">
               GitHub Username
             </label>
-            <div className="flex gap-2 items-center">
-              <Github className="w-5 h-5" aria-hidden="true" />
+            <div className="relative">
               <Input
                 id="github-username"
                 placeholder="Enter GitHub username"
@@ -104,18 +105,30 @@ export const InputForm = ({
                 onKeyDown={handleKeyPress}
                 aria-describedby="github-desc"
                 autoComplete="username"
+                className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
+              <Github
+                className="w-5 h-5 absolute left-3 top-2 text-muted-foreground"
+                aria-hidden="true"
+              />
+              {github.error && (
+                <p className="text-destructive text-xs mt-1 animate-pulse">
+                  {github.error}
+                </p>
+              )}
             </div>
             <p id="github-desc" className="text-xs text-muted-foreground">
-              Enter your GitHub username to view contributions
+              Enter your GitHub username to track commit activity
             </p>
           </div>
-          <div className="flex-1 space-y-2">
-            <label htmlFor="leetcode-username" className="text-sm font-medium">
+
+          <div className="flex-1 space-y-3 group">
+            <label
+              htmlFor="leetcode-username"
+              className="text-sm font-medium flex items-center gap-2">
               LeetCode Username
             </label>
-            <div className="flex gap-2 items-center">
-              <LeetcodeLogo />
+            <div className="relative">
               <Input
                 id="leetcode-username"
                 placeholder="Enter LeetCode username"
@@ -124,24 +137,51 @@ export const InputForm = ({
                 onKeyDown={handleKeyPress}
                 aria-describedby="leetcode-desc"
                 autoComplete="username"
+                className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
+              <div className="absolute left-3 top-2 w-5 h-5 text-muted-foreground">
+                <LeetcodeLogo />
+              </div>
+              {leetcode.error && (
+                <p className="text-destructive text-xs mt-1 animate-pulse">
+                  {leetcode.error}
+                </p>
+              )}
             </div>
             <p id="leetcode-desc" className="text-xs text-muted-foreground">
-              Enter your LeetCode username to view submissions
+              Enter your LeetCode username to track problem-solving activity
             </p>
           </div>
         </div>
 
         <Button
           onClick={handleSearch}
+          className="w-full sm:ml-auto sm:block transition-all duration-300 bg-gradient-to-r from-primary to-primary/80 hover:shadow-md hover:shadow-primary/20"
           disabled={isLoading}
-          className="w-full mt-4">
+          aria-busy={isLoading}>
           {isLoading ? (
-            <>
-              <span className="animate-spin mr-2">⏳</span> Loading...
-            </>
+            <div className="flex items-center justify-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Searching...</span>
+            </div>
           ) : (
-            "Search"
+            "Search Profiles"
           )}
         </Button>
       </CardContent>
