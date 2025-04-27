@@ -19,10 +19,14 @@ const cors = Cors({
 function runMiddleware(
   req: NextApiRequest,
   res: NextApiResponse,
-  fn: Function
+  fn: (
+    req: NextApiRequest,
+    res: NextApiResponse,
+    callback: (result: Error | unknown) => void
+  ) => void
 ) {
   return new Promise((resolve, reject) => {
-    fn(req, res, (result: any) => {
+    fn(req, res, (result: Error | unknown) => {
       if (result instanceof Error) {
         return reject(result);
       }
@@ -83,7 +87,13 @@ export function validateApiKey(
 
 // Apply all security middleware
 export const withSecurity =
-  (handler: any) => async (req: NextApiRequest, res: NextApiResponse) => {
+  <T>(
+    handler: (
+      req: NextApiRequest,
+      res: NextApiResponse<T>
+    ) => Promise<void> | void
+  ) =>
+  async (req: NextApiRequest, res: NextApiResponse<T | { error: string }>) => {
     try {
       // Run the CORS middleware
       await runMiddleware(req, res, cors);

@@ -46,7 +46,7 @@ async function handler(
       },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 5000,
+        timeout: 5000, // 5 second timeout
       }
     );
 
@@ -58,14 +58,17 @@ async function handler(
     }
 
     res.status(200).json(response.data);
-  } catch (error: any) {
-    console.error("LeetCode API error:", error.message || error);
+  } catch (error: unknown) {
+    console.error(
+      "LeetCode API error:",
+      error instanceof Error ? error.message : error
+    );
 
     // Handle different types of errors
-    if (error.response) {
+    if (axios.isAxiosError(error)) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      const status = error.response.status || 500;
+      const status = error.response?.status || 500;
       const message =
         status === 404
           ? "LeetCode user not found"
@@ -74,7 +77,7 @@ async function handler(
           : "Failed to fetch LeetCode data";
 
       return res.status(status).json({ error: message });
-    } else if (error.request) {
+    } else if (error instanceof Error && "request" in error) {
       // The request was made but no response was received
       return res.status(504).json({ error: "LeetCode API timeout" });
     } else {
@@ -87,7 +90,7 @@ async function handler(
 // Apply rate limit of 20 requests per minute per IP
 const rateLimitOptions = {
   windowMs: 60 * 1000, // 1 minute
-  max: 40,
+  max: 20, // 20 requests per minute
   message: "Too many LeetCode data requests, please try again later.",
 };
 

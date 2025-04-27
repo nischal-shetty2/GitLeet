@@ -29,7 +29,7 @@ export const createRateLimiter = ({
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     keyGenerator: (request) => keyGenerator(request as NextApiRequest),
-    skip: (request) => {
+    skip: () => {
       // Skip rate limiting for certain situations if needed
       // For example, you might want to skip for development or test environments
       return process.env.NODE_ENV === "development";
@@ -43,11 +43,17 @@ export const createRateLimiter = ({
 };
 
 // Helper to wrap the API handler with the rate limiter
-export const withRateLimit = (handler: any, options?: RateLimitOptions) => {
+export const withRateLimit = <T>(
+  handler: (
+    req: NextApiRequest,
+    res: NextApiResponse<T>
+  ) => Promise<void> | void,
+  options?: RateLimitOptions
+) => {
   const limiter = createRateLimiter(options);
 
-  return async (req: NextApiRequest, res: NextApiResponse) => {
-    return new Promise((resolve) => {
+  return async (req: NextApiRequest, res: NextApiResponse<T>) => {
+    return new Promise<void>((resolve) => {
       limiter(req, res, () => {
         return resolve(handler(req, res));
       });

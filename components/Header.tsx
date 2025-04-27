@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Moon, Sun } from "lucide-react";
 import { StarGithub } from "./ui/starGithub";
 import Image from "next/image";
-import Link from "next/link";
 
 export const Header = () => {
   const { theme, setTheme } = useTheme();

@@ -1,9 +1,34 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
 import { withRateLimit } from "../../lib/middleware/rateLimit";
 import { withSecurity } from "../../lib/middleware/security";
+import axios from "axios";
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+interface GitHubResponse {
+  data: {
+    user: {
+      contributionsCollection: {
+        contributionCalendar: {
+          totalContributions: number;
+          weeks: {
+            contributionDays: {
+              contributionCount: number;
+              date: string;
+            }[];
+          }[];
+        };
+      };
+    };
+  };
+}
+
+interface ErrorResponse {
+  error: string;
+}
+
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<GitHubResponse | ErrorResponse>
+) {
   // Only allow GET requests
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -60,14 +85,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     res.status(200).json(response.data);
-  } catch (error: any) {
-    console.error("GitHub API error:", error.message || error);
+  } catch (error: unknown) {
+    console.error(
+      "GitHub API error:",
+      error instanceof Error ? error.message : error
+    );
 
     // Handle different types of errors
-    if (error.response) {
+    if (axios.isAxiosError(error)) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      const status = error.response.status || 500;
+      const status = error.response?.status || 500;
       const message =
         status === 404
           ? "GitHub user not found"
@@ -76,7 +104,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           : "Failed to fetch GitHub data";
 
       return res.status(status).json({ error: message });
-    } else if (error.request) {
+    } else if (error instanceof Error && "request" in error) {
       // The request was made but no response was received
       return res.status(504).json({ error: "GitHub API timeout" });
     } else {
