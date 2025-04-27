@@ -6,18 +6,12 @@ import { LeetcodeLogo } from "./ui/logo";
 interface ControlsProps {
   platform: string;
   setPlatform: (platform: "github" | "leetcode") => void;
-  timeRange: number;
-  setTimeRange: (timeRange: number) => void;
 }
 
 export const Controls: React.FC<ControlsProps> = ({
   platform,
   setPlatform,
-  timeRange,
-  setTimeRange,
 }) => {
-  const currentYear = new Date().getFullYear();
-
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
       <CardContent className="py-6 px-6 bg-gradient-to-r from-background to-muted/10">

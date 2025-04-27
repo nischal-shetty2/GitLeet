@@ -14,7 +14,7 @@ export const HeatmapGrid = ({
     // Make defensive copies of data to avoid reference issues
     const githubData = github.data ? [...github.data] : [];
     const leetcodeData = leetcode.data ? [...leetcode.data] : [];
-    
+
     // Combine data from both sources with robust date handling
     const allActivities = [...githubData, ...leetcodeData];
     const activityMap = new Map<string, number>();
@@ -36,7 +36,7 @@ export const HeatmapGrid = ({
           );
         }
       } catch (err) {
-        console.error("Invalid date format:", activity.date);
+        console.error("Invalid date format:", err);
       }
     });
 
@@ -74,7 +74,7 @@ export const HeatmapGrid = ({
           (currentDate.getTime() - startDate.getTime()) /
             (7 * 24 * 60 * 60 * 1000)
         );
-        
+
         if (weekIndex >= 0 && weekIndex < 53) {
           const dayOfWeek = currentDate.getDay();
           const dateStr = currentDate.toISOString().split("T")[0];
@@ -87,7 +87,7 @@ export const HeatmapGrid = ({
             };
           }
         }
-        
+
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -95,7 +95,7 @@ export const HeatmapGrid = ({
       combined.forEach((activity) => {
         try {
           const activityDate = new Date(activity.date);
-          
+
           if (!isNaN(activityDate.getTime())) {
             const weekIndex = Math.floor(
               (activityDate.getTime() - startDate.getTime()) /
@@ -112,7 +112,7 @@ export const HeatmapGrid = ({
             }
           }
         } catch (err) {
-          console.error("Error processing activity date:", activity.date);
+          console.error("Error processing activity date:", err);
         }
       });
 
@@ -125,7 +125,7 @@ export const HeatmapGrid = ({
       startDate.setMonth(startDate.getMonth() - 11);
       startDate.setDate(1); // Start at the first day of month
 
-      let currentDate = new Date(startDate);
+      const currentDate = new Date(startDate);
 
       // Fill in the calendar with empty data for all months
       while (currentDate <= endDate) {
@@ -142,7 +142,7 @@ export const HeatmapGrid = ({
             2,
             "0"
           )}-${String(day).padStart(2, "0")}`;
-          
+
           monthDays.push({ date: dateStr, count: 0 });
         }
 
@@ -177,7 +177,7 @@ export const HeatmapGrid = ({
             const parts = activity.date.split("-");
             if (parts.length === 3) {
               const day = parseInt(parts[2], 10);
-              
+
               // Ensure day is within valid range (1-based day in array with 0-based index)
               if (day > 0 && day <= months[monthIndex].days.length) {
                 const dayIndex = day - 1;
@@ -188,7 +188,7 @@ export const HeatmapGrid = ({
             }
           }
         } catch (err) {
-          console.error("Error processing activity date:", activity.date);
+          console.error("Error processing activity date:", err);
         }
       });
 

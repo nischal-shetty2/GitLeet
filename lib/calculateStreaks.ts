@@ -36,8 +36,8 @@ export const calculateStreaks = (activities: ActivityData[]) => {
 
   // Calculate current streak correctly
   let currentStreak = 0;
-  let currentDate = new Date(today);
-  
+  const currentDate = new Date(today);
+
   // If today has no activity, check if yesterday had activity
   // (to handle case where user hasn't done anything today yet)
   const todayStr = currentDate.toISOString().split("T")[0];
@@ -74,7 +74,7 @@ export const calculateStreaks = (activities: ActivityData[]) => {
 
   // Calculate longest streak
   let longestStreak = currentStreak > 0 ? currentStreak : 0;
-  
+
   // Find all continuous streaks in the year
   let streak = 0;
   let lastActiveDay: Date | null = null;
@@ -82,16 +82,17 @@ export const calculateStreaks = (activities: ActivityData[]) => {
   filteredActivities.forEach(({ date, count }) => {
     if (count > 0) {
       const activityDate = new Date(date);
-      
+
       if (lastActiveDay === null) {
         // First day with activity
         streak = 1;
       } else {
         // Check if this activity is consecutive with the last one
         const dayDiff = Math.floor(
-          (activityDate.getTime() - lastActiveDay.getTime()) / (24 * 60 * 60 * 1000)
+          (activityDate.getTime() - lastActiveDay.getTime()) /
+            (24 * 60 * 60 * 1000)
         );
-        
+
         if (dayDiff === 1) {
           // Consecutive day
           streak++;
@@ -102,7 +103,7 @@ export const calculateStreaks = (activities: ActivityData[]) => {
         }
         // dayDiff should never be 0 as we've merged activities by date
       }
-      
+
       lastActiveDay = activityDate;
       longestStreak = Math.max(longestStreak, streak);
     }
@@ -118,9 +119,10 @@ export const calculateStreaks = (activities: ActivityData[]) => {
     }
   });
 
-  const averagePerDay = filteredActivities.length > 0 
-    ? totalContributions / filteredActivities.length 
-    : 0;
+  const averagePerDay =
+    filteredActivities.length > 0
+      ? totalContributions / filteredActivities.length
+      : 0;
 
   return {
     currentStreak,

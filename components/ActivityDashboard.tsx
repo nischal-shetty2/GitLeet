@@ -77,7 +77,7 @@ const ActivityDashboard = () => {
           activityMap.set(dateStr, (activityMap.get(dateStr) || 0) + count);
         }
       } catch (err) {
-        console.error("Invalid date format:", activity.date);
+        console.error("Invalid date format:", err);
       }
     });
 
