@@ -19,8 +19,10 @@ export const useGitHubData = (username: string) => {
     }
   }, [username]);
 
-  const fetchData = async () => {
-    if (!username) return;
+  const fetchData = async (overrideUsername?: string) => {
+    const usernameToFetch = overrideUsername || username;
+
+    if (!usernameToFetch) return;
 
     // Reset state for new fetch
     setLoading(true);
@@ -29,11 +31,11 @@ export const useGitHubData = (username: string) => {
 
     try {
       // Store the username we're currently fetching to handle race conditions
-      const fetchingUsername = username;
-      lastFetchedUsernameRef.current = username;
+      const fetchingUsername = usernameToFetch;
+      lastFetchedUsernameRef.current = usernameToFetch;
 
       const response = await axios.get(`/api/github`, {
-        params: { username },
+        params: { username: usernameToFetch },
       });
 
       // If the username changed during fetch, discard this result
@@ -47,7 +49,7 @@ export const useGitHubData = (username: string) => {
       }
     } catch (err) {
       // Only set error if we're still interested in this username
-      if (username === lastFetchedUsernameRef.current) {
+      if (usernameToFetch === lastFetchedUsernameRef.current) {
         const errorMessage =
           axios.isAxiosError(err) && err.response
             ? `GitHub API error: ${err.response.status}`
@@ -60,7 +62,7 @@ export const useGitHubData = (username: string) => {
       }
     } finally {
       // Only update loading state if we're still interested in this username
-      if (username === lastFetchedUsernameRef.current) {
+      if (usernameToFetch === lastFetchedUsernameRef.current) {
         setLoading(false);
       }
     }
@@ -82,8 +84,10 @@ export const useLeetCodeData = (username: string) => {
     }
   }, [username]);
 
-  const fetchData = async () => {
-    if (!username) return;
+  const fetchData = async (overrideUsername?: string) => {
+    const usernameToFetch = overrideUsername || username;
+
+    if (!usernameToFetch) return;
 
     // Reset state for new fetch
     setLoading(true);
@@ -92,11 +96,11 @@ export const useLeetCodeData = (username: string) => {
 
     try {
       // Store the username we're currently fetching to handle race conditions
-      const fetchingUsername = username;
-      lastFetchedUsernameRef.current = username;
+      const fetchingUsername = usernameToFetch;
+      lastFetchedUsernameRef.current = usernameToFetch;
 
       const response = await axios.get(`/api/leetcode`, {
-        params: { username },
+        params: { username: usernameToFetch },
       });
 
       // If the username changed during fetch, discard this result
@@ -110,7 +114,7 @@ export const useLeetCodeData = (username: string) => {
       }
     } catch (err) {
       // Only set error if we're still interested in this username
-      if (username === lastFetchedUsernameRef.current) {
+      if (usernameToFetch === lastFetchedUsernameRef.current) {
         const errorMessage =
           axios.isAxiosError(err) && err.response
             ? `LeetCode API error: ${err.response.status}`
@@ -123,7 +127,7 @@ export const useLeetCodeData = (username: string) => {
       }
     } finally {
       // Only update loading state if we're still interested in this username
-      if (username === lastFetchedUsernameRef.current) {
+      if (usernameToFetch === lastFetchedUsernameRef.current) {
         setLoading(false);
       }
     }

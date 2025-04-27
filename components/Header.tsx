@@ -14,23 +14,19 @@ export const Header = () => {
       <div className="w-full py-4 px-4 sm:px-6 bg-gradient-to-r from-background to-card">
         <div className="max-w-screen-xl mx-auto">
           <div className="flex justify-between items-center gap-4">
-            <Link
-              href="/"
-              aria-label="Gitleet Home"
-              className="flex items-center">
-              <div className="relative">
-                <Image
-                  alt="Gitleet - GitHub & LeetCode Activity Tracker"
-                  width={115}
-                  height={50}
-                  src="/gitleet.jpg"
-                  className="rounded-md contrast-125 shadow-sm hover:shadow-md transition-all duration-300"
-                  priority
-                  sizes="(max-width: 768px) 115px, 115px"
-                />
-                <div className="absolute inset-0 rounded-md bg-gradient-to-tr from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-            </Link>
+            <div className="relative">
+              <Image
+                alt="Gitleet - GitHub & LeetCode Activity Tracker"
+                width={115}
+                height={50}
+                src="/gitleet.jpg"
+                className="rounded-md contrast-125 shadow-sm hover:shadow-md transition-all duration-300"
+                priority
+                sizes="(max-width: 768px) 115px, 115px"
+              />
+              <div className="absolute inset-0 rounded-md bg-gradient-to-tr from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+            </div>
+
             <div className="flex items-center space-x-4">
               <Button
                 variant="outline"

@@ -39,7 +39,7 @@ export interface GitHubDataHook {
   loading: boolean;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  fetchData: () => Promise<void>;
+  fetchData: (username?: string) => Promise<void>;
 }
 
 export interface LeetCodeDataHook {
@@ -48,5 +48,5 @@ export interface LeetCodeDataHook {
   loading: boolean;
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
-  fetchData: () => Promise<void>;
+  fetchData: (username?: string) => Promise<void>;
 }

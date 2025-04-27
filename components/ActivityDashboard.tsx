@@ -15,7 +15,6 @@ import { LeetCodeHeatmap } from "./LeetCodeHeatmap";
 // Memoizing sub-components to avoid unnecessary re-renders
 const MemoizedLeetCodeHeatmap = memo(LeetCodeHeatmap);
 const MemoizedStatsCard = memo(StatsCard);
-const MemoizedInputForm = memo(InputForm);
 
 const ActivityDashboard = () => {
   const [githubUsername, setGithubUsername] = useState("nischal-shetty2");
@@ -97,7 +96,7 @@ const ActivityDashboard = () => {
 
         <section aria-label="User inputs">
           <h2 className="sr-only">Enter GitHub and LeetCode Usernames</h2>
-          <MemoizedInputForm
+          <InputForm
             github={github}
             githubUsername={githubUsername}
             leetcode={leetcode}

@@ -43,23 +43,21 @@ export const InputForm = ({
     github.setError(null);
     leetcode.setError(null);
 
-    // Update parent state with local state
     setGithubUsername(localGithubUsername);
     setLeetcodeUsername(localLeetcodeUsername);
 
-    // Fetch data as needed, reset data arrays to avoid showing stale data
     if (!localGithubUsername) {
       github.setData([]);
     } else {
       github.setData([]);
-      github.fetchData();
+      github.fetchData(localGithubUsername);
     }
 
     if (!localLeetcodeUsername) {
       leetcode.setData([]);
     } else {
       leetcode.setData([]);
-      leetcode.fetchData();
+      leetcode.fetchData(localLeetcodeUsername);
     }
   };
 

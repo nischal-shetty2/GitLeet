@@ -97,10 +97,10 @@ export const GitHubHeatmap = ({
   const getColorClass = (count: number) => {
     const baseColors = [
       "bg-gray-100",
-      "bg-lime-200",
-      "bg-lime-300",
-      "bg-lime-500",
-      "bg-lime-700",
+      "bg-green-200",
+      "bg-green-300",
+      "bg-green-500",
+      "bg-green-700",
     ];
 
     const darkColors = [

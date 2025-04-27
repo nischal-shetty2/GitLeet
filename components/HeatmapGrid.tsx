@@ -200,10 +200,10 @@ export const HeatmapGrid = ({
     const baseColors = {
       github: [
         "bg-gray-100",
-        "bg-lime-200",
-        "bg-lime-300",
-        "bg-lime-500",
-        "bg-lime-700",
+        "bg-green-200",
+        "bg-green-300",
+        "bg-green-500",
+        "bg-green-700",
       ],
       leetcode: [
         "bg-gray-100",
@@ -217,17 +217,17 @@ export const HeatmapGrid = ({
     const darkColors = {
       github: [
         "dark:bg-gray-800",
-        "dark:bg-lime-900",
-        "dark:bg-lime-700",
-        "dark:bg-lime-500",
-        "dark:bg-lime-300",
+        "dark:bg-green-900",
+        "dark:bg-green-700",
+        "dark:bg-green-500",
+        "dark:bg-green-300",
       ],
       leetcode: [
         "dark:bg-gray-800",
-        "dark:bg-yellow-900",
-        "dark:bg-yellow-700",
-        "dark:bg-yellow-500",
-        "dark:bg-yellow-300",
+        "dark:bg-green-900",
+        "dark:bg-green-700",
+        "dark:bg-green-500",
+        "dark:bg-green-300",
       ],
     };
 
