@@ -60,7 +60,7 @@ async function handler(
     `;
 
     // Ensure GitHub token exists
-    if (!process.env.NEXT_PUBLIC_GITHUB_TOKEN) {
+    if (!process.env.GITHUB_TOKEN) {
       console.error("GitHub token is not configured");
       return res.status(500).json({ error: "Server configuration error" });
     }
@@ -70,7 +70,7 @@ async function handler(
       { query, variables: { login: username } },
       {
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
           "Content-Type": "application/json",
         },
         timeout: 5000, // 5 second timeout

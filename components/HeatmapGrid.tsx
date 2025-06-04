@@ -427,5 +427,3 @@ export const HeatmapGrid = ({
     </div>
   );
 };
-
-export default HeatmapGrid;

@@ -40,4 +40,4 @@ We welcome contributions from the community. To contribute, please follow these 
 
 ## Contact
 
-For any questions or feedback, please open an issue on our [GitHub repository](https://github.com/yourusername/gitleet/issues) or reach out via email at [nischal.shetty02@gmail.com](mailto:nischal.shetty02@gmail.com). You can also send me a direct message on [X](https://x.com/NischalShetty02).
+For any questions or feedback reach out via email at [nischal.shetty02@gmail.com](mailto:nischal.shetty02@gmail.com). You can also send me a direct message on [X](https://x.com/NischalShetty02).

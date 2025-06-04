@@ -1,4 +1,3 @@
-"use server";
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { withRateLimit } from "../../lib/middleware/rateLimit";

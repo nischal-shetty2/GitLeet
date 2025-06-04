@@ -210,5 +210,3 @@ export const GitHubHeatmap = ({
     </div>
   );
 };
-
-export default GitHubHeatmap;
