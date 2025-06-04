@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
+import { normalizeDate } from "@/lib/calendarUtils";
 
 export const LeetCodeHeatmap = ({
   github,
@@ -19,17 +20,25 @@ export const LeetCodeHeatmap = ({
     const allActivities = [...(github.data || []), ...(leetcode.data || [])];
     const activityMap = new Map<string, number>();
 
-    // Ensure consistent date parsing
+    // Ensure consistent date parsing using utility functions
     allActivities.forEach((activity) => {
-      const date = new Date(activity.date);
-      if (!isNaN(date.getTime())) {
-        const dateStr = date.toISOString().split("T")[0];
-        if (activity.count > 0) {
+      try {
+        if (!activity.date) {
+          console.warn("Activity with missing date found");
+          return;
+        }
+
+        // Use utility function for consistent date normalization
+        const normalizedDate = normalizeDate(activity.date);
+
+        if (normalizedDate) {
           activityMap.set(
-            dateStr,
-            (activityMap.get(dateStr) || 0) + activity.count
+            normalizedDate,
+            (activityMap.get(normalizedDate) || 0) + activity.count
           );
         }
+      } catch (err) {
+        console.error("Invalid date format:", err, "for date:", activity.date);
       }
     });
 
@@ -38,11 +47,15 @@ export const LeetCodeHeatmap = ({
       count,
     }));
 
-    // Generate calendar months
-    const endDate = new Date();
+    // Generate calendar months with improved date handling
+    const now = new Date();
+    const endDate = new Date(now);
+    endDate.setHours(23, 59, 59, 999); // End of current day
+
     const startDate = new Date(endDate);
-    startDate.setMonth(startDate.getMonth() - 11);
-    startDate.setDate(1);
+    startDate.setMonth(startDate.getMonth() - 11); // Go back 12 months (including current)
+    startDate.setDate(1); // Start at the first day of month
+    startDate.setHours(0, 0, 0, 0); // Start of day
 
     const months: { name: string; days: ActivityData[] }[] = [];
 
@@ -50,6 +63,7 @@ export const LeetCodeHeatmap = ({
     while (currentDate <= endDate) {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
+      // Get days in month using last day calculation (more reliable)
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       const monthDays: ActivityData[] = [];
@@ -65,7 +79,9 @@ export const LeetCodeHeatmap = ({
         days: monthDays,
       });
 
+      // Move to first day of next month (avoiding date arithmetic issues)
       currentDate.setMonth(currentDate.getMonth() + 1);
+      currentDate.setDate(1);
     }
 
     // Improved data merging with robust date parsing
@@ -78,23 +94,59 @@ export const LeetCodeHeatmap = ({
     });
 
     combined.forEach((activity) => {
-      const key = activity.date.slice(0, 7);
-      const monthIndex = monthMap.get(key);
+      try {
+        if (!activity.date) {
+          console.warn("Activity with missing date found");
+          return;
+        }
 
-      if (monthIndex !== undefined) {
-        // Robust day extraction and parsing
-        const parts = activity.date.split("-");
-        if (parts.length === 3) {
-          const day = parseInt(parts[2], 10);
+        // Normalize date format if needed
+        let normalizedDate = activity.date;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+          // Convert any date format to YYYY-MM-DD
+          const date = new Date(normalizedDate);
+          if (!isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            normalizedDate = `${year}-${month}-${day}`;
+          } else {
+            console.warn("Could not normalize date:", activity.date);
+            return;
+          }
+        }
 
-          // Ensure day is within valid range
-          if (day > 0 && day <= months[monthIndex].days.length) {
-            const dayIndex = day - 1;
-            if (months[monthIndex].days[dayIndex]) {
-              months[monthIndex].days[dayIndex].count += activity.count;
+        const key = normalizedDate.slice(0, 7);
+        const monthIndex = monthMap.get(key);
+
+        if (monthIndex !== undefined) {
+          // Extract day from YYYY-MM-DD format
+          const parts = normalizedDate.split("-");
+          if (parts.length === 3) {
+            const day = parseInt(parts[2], 10);
+
+            // Ensure day is within valid range
+            if (day > 0 && day <= months[monthIndex].days.length) {
+              const dayIndex = day - 1;
+              if (months[monthIndex].days[dayIndex]) {
+                months[monthIndex].days[dayIndex].count += activity.count;
+
+                // Double-check that the date matches our expected date
+                if (months[monthIndex].days[dayIndex].date !== normalizedDate) {
+                  // Fix the date in the data structure if it doesn't match
+                  months[monthIndex].days[dayIndex].date = normalizedDate;
+                }
+              }
             }
           }
         }
+      } catch (err) {
+        console.error(
+          "Error processing activity date:",
+          err,
+          "for date:",
+          activity.date
+        );
       }
     });
 

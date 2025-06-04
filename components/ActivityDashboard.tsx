@@ -64,19 +64,41 @@ const ActivityDashboard = () => {
       };
     }
 
-    // Normalize all dates and merge counts by date
+    // Normalize all dates and merge counts by date with robust date handling
     const activityMap = new Map<string, number>();
     allActivities.forEach((activity) => {
       try {
-        // Ensure consistent date format across all activities
+        if (!activity.date) {
+          console.warn("Activity with missing date found");
+          return;
+        }
+
+        // Handle date strings directly if they're already in YYYY-MM-DD format
+        if (/^\d{4}-\d{2}-\d{2}$/.test(activity.date)) {
+          activityMap.set(
+            activity.date,
+            (activityMap.get(activity.date) || 0) + activity.count
+          );
+          return;
+        }
+
+        // Create a new Date object for other formats
         const date = new Date(activity.date);
+
         if (!isNaN(date.getTime())) {
-          const dateStr = date.toISOString().split("T")[0];
-          const count = activity.count;
-          activityMap.set(dateStr, (activityMap.get(dateStr) || 0) + count);
+          // Format date consistently to avoid timezone issues
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const dateStr = `${year}-${month}-${day}`;
+
+          activityMap.set(
+            dateStr,
+            (activityMap.get(dateStr) || 0) + activity.count
+          );
         }
       } catch (err) {
-        console.error("Invalid date format:", err);
+        console.error("Invalid date format:", err, "for date:", activity.date);
       }
     });
 

@@ -52,9 +52,11 @@ export const useGitHubData = (username: string) => {
       if (usernameToFetch === lastFetchedUsernameRef.current) {
         const errorMessage =
           axios.isAxiosError(err) && err.response
-            ? `GitHub API error: ${err.response.status}`
-            : err instanceof Error
-            ? err.message
+            ? `GitHub API error: ${
+                err.response.status === 404
+                  ? "invalid username"
+                  : "GitHub API rate limit exceeded"
+              }`
             : "Failed to fetch GitHub data";
 
         setError(errorMessage);
@@ -117,7 +119,11 @@ export const useLeetCodeData = (username: string) => {
       if (usernameToFetch === lastFetchedUsernameRef.current) {
         const errorMessage =
           axios.isAxiosError(err) && err.response
-            ? `LeetCode API error: ${err.response.status}`
+            ? `LeetCode API error: ${
+                err.response.status === 404
+                  ? "invalid username"
+                  : "LeetCode API rate limit exceeded"
+              }`
             : err instanceof Error
             ? err.message
             : "Failed to fetch LeetCode data";

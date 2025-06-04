@@ -18,12 +18,26 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Gitleet - GitHub & LeetCode Activity Tracker in One Dashboard",
-  description: "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity, streaks, and progress across both platforms.",
-  keywords: ["GitHub tracker", "LeetCode tracker", "coding activity", "developer dashboard", "GitHub contributions", "LeetCode submissions", "coding streaks", "programming activity", "developer analytics", "code tracking"],
+  description:
+    "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity, streaks, and progress across both platforms.",
+  keywords: [
+    "GitHub tracker",
+    "LeetCode tracker",
+    "coding activity",
+    "developer dashboard",
+    "GitHub contributions",
+    "LeetCode submissions",
+    "coding streaks",
+    "programming activity",
+    "developer analytics",
+    "code tracking",
+  ],
   authors: [{ name: "Nischal Shetty" }],
+  metadataBase: new URL("https://gitleet.vercel.app"),
   openGraph: {
     title: "Gitleet - GitHub & LeetCode Activity Tracker in One Dashboard",
-    description: "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity across platforms.",
+    description:
+      "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity across platforms.",
     url: "https://gitleet.vercel.app",
     siteName: "Gitleet",
     images: [

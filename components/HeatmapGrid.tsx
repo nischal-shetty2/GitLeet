@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
+import { formatDateString, normalizeDate } from "@/lib/calendarUtils";
 
 export const HeatmapGrid = ({
   platform,
@@ -19,24 +20,26 @@ export const HeatmapGrid = ({
     const allActivities = [...githubData, ...leetcodeData];
     const activityMap = new Map<string, number>();
 
-    // Ensure consistent date parsing and normalize date format
+    // Ensure consistent date parsing and normalize date format using utility functions
     allActivities.forEach((activity) => {
       try {
-        // Create a new Date object to handle various input formats
-        const date = new Date(activity.date);
+        if (!activity.date) {
+          console.warn("Activity with missing date found");
+          return;
+        }
 
-        // Ensure we have a valid date
-        if (!isNaN(date.getTime())) {
-          // Use ISO format for consistent date formatting
-          const dateStr = date.toISOString().split("T")[0];
-          // Accumulate activity count
+        // Use the utility function for consistent date normalization
+        const normalizedDate = normalizeDate(activity.date);
+
+        if (normalizedDate) {
+          // Accumulate activity count with normalized date
           activityMap.set(
-            dateStr,
-            (activityMap.get(dateStr) || 0) + activity.count
+            normalizedDate,
+            (activityMap.get(normalizedDate) || 0) + activity.count
           );
         }
       } catch (err) {
-        console.error("Invalid date format:", err);
+        console.error("Invalid date format:", err, "for date:", activity.date);
       }
     });
 
@@ -49,17 +52,29 @@ export const HeatmapGrid = ({
 
     if (platform === "github") {
       // GitHub weekly view logic with improved date handling
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - 365);
+      // Clone current date to avoid mutations
+      const now = new Date();
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 364); // 364 days = 52 weeks
+      startDate.setHours(0, 0, 0, 0); // Normalize time component
 
-      // Ensure start date is the most recent Sunday (first day of GitHub week)
+      // Ensure start date is a Sunday (first day of GitHub week)
       while (startDate.getDay() !== 0) {
         startDate.setDate(startDate.getDate() - 1);
       }
 
-      const endDate = new Date();
+      const endDate = new Date(now);
+      endDate.setHours(23, 59, 59, 999); // End of the day
+
+      // Calculate exact number of weeks needed (usually 53)
+      const totalDays =
+        Math.ceil(
+          (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+        ) + 1;
+      const totalWeeks = Math.ceil(totalDays / 7);
+
       // Initialize weeks with empty data
-      const weeks: ActivityData[][] = Array(53)
+      const weeks: ActivityData[][] = Array(totalWeeks)
         .fill(null)
         .map(() =>
           Array(7)
@@ -67,7 +82,7 @@ export const HeatmapGrid = ({
             .map(() => ({ date: "", count: 0 }))
         );
 
-      // Fill in all dates in the grid
+      // Fill in all dates in the grid with precise date calculation
       const currentDate = new Date(startDate);
       while (currentDate <= endDate) {
         const weekIndex = Math.floor(
@@ -75,9 +90,11 @@ export const HeatmapGrid = ({
             (7 * 24 * 60 * 60 * 1000)
         );
 
-        if (weekIndex >= 0 && weekIndex < 53) {
+        if (weekIndex >= 0 && weekIndex < totalWeeks) {
           const dayOfWeek = currentDate.getDay();
-          const dateStr = currentDate.toISOString().split("T")[0];
+
+          // Use the utility function for consistent date formatting
+          const dateStr = formatDateString(currentDate);
 
           // Ensure the slot exists before assignment
           if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
@@ -88,23 +105,38 @@ export const HeatmapGrid = ({
           }
         }
 
+        // Add exactly one day (avoid timezone issues)
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
       // Merge activity data into weeks with robust date matching
       combined.forEach((activity) => {
         try {
+          if (!activity.date) return;
+
+          // Try to find the exact date match first
+          const exactMatch = findExactDateMatch(activity.date, weeks);
+          if (exactMatch) {
+            const { weekIndex, dayIndex } = exactMatch;
+            weeks[weekIndex][dayIndex].count += activity.count;
+            return;
+          }
+
+          // If no exact match found, calculate position by date
           const activityDate = new Date(activity.date);
 
           if (!isNaN(activityDate.getTime())) {
+            // Set to start of day to match our grid dates
+            activityDate.setHours(0, 0, 0, 0);
+
             const weekIndex = Math.floor(
               (activityDate.getTime() - startDate.getTime()) /
                 (7 * 24 * 60 * 60 * 1000)
             );
 
-            if (weekIndex >= 0 && weekIndex < 53) {
-              const dayOfWeek = activityDate.getDay();
+            const dayOfWeek = activityDate.getDay();
 
+            if (weekIndex >= 0 && weekIndex < totalWeeks) {
               // Additional null check and assignment
               if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
                 weeks[weekIndex][dayOfWeek].count += activity.count;
@@ -112,18 +144,45 @@ export const HeatmapGrid = ({
             }
           }
         } catch (err) {
-          console.error("Error processing activity date:", err);
+          console.error(
+            "Error processing activity date:",
+            err,
+            "for date:",
+            activity.date
+          );
         }
       });
+
+      // Helper function to find exact date match in weeks grid
+      function findExactDateMatch(
+        dateStr: string,
+        weeks: ActivityData[][]
+      ): { weekIndex: number; dayIndex: number } | null {
+        for (let weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+          const week = weeks[weekIndex];
+          for (let dayIndex = 0; dayIndex < week.length; dayIndex++) {
+            if (week[dayIndex].date === dateStr) {
+              return { weekIndex, dayIndex };
+            }
+          }
+        }
+        return null;
+      }
 
       return { type: "github", weeks };
     } else {
       // LeetCode monthly view logic with improved date handling
       const months: { name: string; days: ActivityData[] }[] = [];
-      const endDate = new Date();
+
+      // Clone dates to avoid mutation issues
+      const now = new Date();
+      const endDate = new Date(now);
+      endDate.setHours(23, 59, 59, 999); // End of current day
+
       const startDate = new Date(endDate);
-      startDate.setMonth(startDate.getMonth() - 11);
+      startDate.setMonth(startDate.getMonth() - 11); // Go back 12 months (including current)
       startDate.setDate(1); // Start at the first day of month
+      startDate.setHours(0, 0, 0, 0); // Start of day
 
       const currentDate = new Date(startDate);
 
@@ -132,7 +191,7 @@ export const HeatmapGrid = ({
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
 
-        // Get days in month using last day calculation
+        // Get days in month using last day calculation (more reliable)
         const daysInMonth = new Date(year, month + 1, 0).getDate();
 
         const monthDays: ActivityData[] = [];
@@ -151,8 +210,9 @@ export const HeatmapGrid = ({
           days: monthDays,
         });
 
-        // Move to first day of next month
+        // Move to first day of next month (avoiding date arithmetic issues)
         currentDate.setMonth(currentDate.getMonth() + 1);
+        currentDate.setDate(1);
       }
 
       // Create a month lookup map for faster access
@@ -168,13 +228,34 @@ export const HeatmapGrid = ({
       // Merge activity data into months
       combined.forEach((activity) => {
         try {
-          // Extract YYYY-MM from date
-          const key = activity.date.slice(0, 7);
+          if (!activity.date) {
+            console.warn("Activity with missing date found");
+            return;
+          }
+
+          // Normalize date format if needed
+          let normalizedDate = activity.date;
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
+            // Convert any date format to YYYY-MM-DD
+            const date = new Date(normalizedDate);
+            if (!isNaN(date.getTime())) {
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              normalizedDate = `${year}-${month}-${day}`;
+            } else {
+              console.warn("Could not normalize date:", activity.date);
+              return;
+            }
+          }
+
+          // Extract YYYY-MM from normalized date
+          const key = normalizedDate.slice(0, 7);
           const monthIndex = monthMap.get(key);
 
           if (monthIndex !== undefined) {
             // Extract day from YYYY-MM-DD format
-            const parts = activity.date.split("-");
+            const parts = normalizedDate.split("-");
             if (parts.length === 3) {
               const day = parseInt(parts[2], 10);
 
@@ -183,12 +264,27 @@ export const HeatmapGrid = ({
                 const dayIndex = day - 1;
                 if (months[monthIndex].days[dayIndex]) {
                   months[monthIndex].days[dayIndex].count += activity.count;
+
+                  // Double-check that the date in the data structure matches our expected date
+                  const expectedDate = normalizedDate;
+                  if (months[monthIndex].days[dayIndex].date !== expectedDate) {
+                    console.warn(
+                      `Date mismatch: expected ${expectedDate}, got ${months[monthIndex].days[dayIndex].date}`
+                    );
+                    // Fix the date in the data structure
+                    months[monthIndex].days[dayIndex].date = expectedDate;
+                  }
                 }
               }
             }
           }
         } catch (err) {
-          console.error("Error processing activity date:", err);
+          console.error(
+            "Error processing activity date:",
+            err,
+            "for date:",
+            activity.date
+          );
         }
       });
 

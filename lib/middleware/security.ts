@@ -6,7 +6,7 @@ const cors = Cors({
   // Specify allowed origins or use true to allow any origin (not recommended for production)
   origin:
     process.env.NODE_ENV === "production"
-      ? process.env.ALLOWED_ORIGINS?.split(",") || ["https://yourdomain.com"]
+      ? ["https://gitleet.vercel.app"]
       : true,
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -37,7 +37,7 @@ function runMiddleware(
 
 // Set security headers middleware
 export async function setSecurityHeaders(
-  req: NextApiRequest,
+  _req: NextApiRequest,
   res: NextApiResponse
 ) {
   // Set strict Content-Security-Policy

@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { MonthLabels } from "./MonthLabels";
+import { formatDateString, normalizeDate } from "@/lib/calendarUtils";
 
 export const GitHubHeatmap = ({
   github,
@@ -14,17 +15,25 @@ export const GitHubHeatmap = ({
     const allActivities = [...(github.data || []), ...(leetcode.data || [])];
     const activityMap = new Map<string, number>();
 
-    // Ensure consistent date parsing
+    // Ensure consistent date parsing using utility functions
     allActivities.forEach((activity) => {
-      const date = new Date(activity.date);
-      if (!isNaN(date.getTime())) {
-        const dateStr = date.toISOString().split("T")[0];
-        if (activity.count > 0) {
+      try {
+        if (!activity.date) {
+          console.warn("Activity with missing date found");
+          return;
+        }
+
+        // Use utility function for consistent date normalization
+        const normalizedDate = normalizeDate(activity.date);
+
+        if (normalizedDate) {
           activityMap.set(
-            dateStr,
-            (activityMap.get(dateStr) || 0) + activity.count
+            normalizedDate,
+            (activityMap.get(normalizedDate) || 0) + activity.count
           );
         }
+      } catch (err) {
+        console.error("Invalid date format:", err, "for date:", activity.date);
       }
     });
 
@@ -34,16 +43,28 @@ export const GitHubHeatmap = ({
     }));
 
     // GitHub weekly view logic with improved date handling
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 365);
+    // Clone current date to avoid mutations
+    const now = new Date();
+    const startDate = new Date(now);
+    startDate.setDate(startDate.getDate() - 364); // 364 days = 52 weeks
+    startDate.setHours(0, 0, 0, 0); // Normalize time component
 
-    // Ensure start date is the most recent Sunday
+    // Ensure start date is a Sunday (first day of GitHub week)
     while (startDate.getDay() !== 0) {
       startDate.setDate(startDate.getDate() - 1);
     }
 
-    const endDate = new Date();
-    const weeks: ActivityData[][] = Array(53)
+    const endDate = new Date(now);
+    endDate.setHours(23, 59, 59, 999); // End of the day
+
+    // Calculate exact number of weeks needed (usually 53)
+    const totalDays =
+      Math.ceil(
+        (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)
+      ) + 1;
+    const totalWeeks = Math.ceil(totalDays / 7);
+
+    const weeks: ActivityData[][] = Array(totalWeeks)
       .fill(null)
       .map(() =>
         Array(7)
@@ -58,9 +79,11 @@ export const GitHubHeatmap = ({
           (7 * 24 * 60 * 60 * 1000)
       );
 
-      if (weekIndex < 53) {
+      if (weekIndex >= 0 && weekIndex < totalWeeks) {
         const dayOfWeek = currentDate.getDay();
-        const dateStr = currentDate.toISOString().split("T")[0];
+
+        // Use utility function for consistent date formatting
+        const dateStr = formatDateString(currentDate);
 
         // Ensure the slot exists before assignment
         if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
@@ -70,26 +93,69 @@ export const GitHubHeatmap = ({
           };
         }
       }
+      // Add exactly one day (avoid timezone issues)
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     // Merge combined data into weeks with robust date matching
     combined.forEach((activity) => {
-      const activityDate = new Date(activity.date);
-      const weekIndex = Math.floor(
-        (activityDate.getTime() - startDate.getTime()) /
-          (7 * 24 * 60 * 60 * 1000)
-      );
+      try {
+        if (!activity.date) return;
 
-      if (weekIndex >= 0 && weekIndex < 53) {
-        const dayOfWeek = activityDate.getDay();
-
-        // Additional null check and assignment
-        if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
-          weeks[weekIndex][dayOfWeek].count += activity.count;
+        // Try to find the exact date match first
+        const exactMatch = findExactDateMatch(activity.date, weeks);
+        if (exactMatch) {
+          const { weekIndex, dayIndex } = exactMatch;
+          weeks[weekIndex][dayIndex].count += activity.count;
+          return;
         }
+
+        // If no exact match found, calculate position by date
+        const activityDate = new Date(activity.date);
+
+        if (!isNaN(activityDate.getTime())) {
+          // Set to start of day to match our grid dates
+          activityDate.setHours(0, 0, 0, 0);
+
+          const weekIndex = Math.floor(
+            (activityDate.getTime() - startDate.getTime()) /
+              (7 * 24 * 60 * 60 * 1000)
+          );
+
+          const dayOfWeek = activityDate.getDay();
+
+          if (weekIndex >= 0 && weekIndex < totalWeeks) {
+            // Additional null check and assignment
+            if (weeks[weekIndex] && weeks[weekIndex][dayOfWeek]) {
+              weeks[weekIndex][dayOfWeek].count += activity.count;
+            }
+          }
+        }
+      } catch (err) {
+        console.error(
+          "Error processing activity date:",
+          err,
+          "for date:",
+          activity.date
+        );
       }
     });
+
+    // Helper function to find exact date match in weeks grid
+    function findExactDateMatch(
+      dateStr: string,
+      weeks: ActivityData[][]
+    ): { weekIndex: number; dayIndex: number } | null {
+      for (let weekIndex = 0; weekIndex < weeks.length; weekIndex++) {
+        const week = weeks[weekIndex];
+        for (let dayIndex = 0; dayIndex < week.length; dayIndex++) {
+          if (week[dayIndex].date === dateStr) {
+            return { weekIndex, dayIndex };
+          }
+        }
+      }
+      return null;
+    }
 
     return weeks;
   }, [github.data, leetcode.data]);
