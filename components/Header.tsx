@@ -9,8 +9,8 @@ export const Header = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="w-full mb-6 relative z-10">
-      <div className="w-full py-4 px-4 sm:px-6 bg-gradient-to-r from-background to-card">
+    <header className="w-full relative z-10">
+      <div className="w-full px-4 sm:px-6 bg-gradient-to-r from-background to-card">
         <div className="max-w-screen-xl mx-auto">
           <div className="flex justify-between items-center gap-4">
             <div className="relative">

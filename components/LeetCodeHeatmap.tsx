@@ -1,6 +1,14 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { normalizeDate } from "@/lib/calendarUtils";
+// Debug helper can be enabled during development if needed
+// import { validateHeatmapData } from "@/lib/heatmapValidation";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const LeetCodeHeatmap = ({
   github,
@@ -42,10 +50,20 @@ export const LeetCodeHeatmap = ({
       }
     });
 
-    const combined = Array.from(activityMap.entries()).map(([date, count]) => ({
-      date,
-      count,
-    }));
+    const combined = Array.from(activityMap.entries())
+      .map(([date, count]) => ({
+        date,
+        count,
+      }))
+      .filter((activity) => activity.date); // Ensure no empty dates
+
+    // Debug validation - uncomment during development if issues arise
+    // if (process.env.NODE_ENV === 'development') {
+    //   const validation = validateHeatmapData(github.data || [], leetcode.data || []);
+    //   if (!validation.valid) {
+    //     console.warn('Heatmap validation issues:', validation.issues);
+    //   }
+    // }
 
     // Generate calendar months with improved date handling
     const now = new Date();
@@ -68,9 +86,9 @@ export const LeetCodeHeatmap = ({
 
       const monthDays: ActivityData[] = [];
       for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-          day
-        ).padStart(2, "0")}`;
+        // Use the date utility function for consistent formatting
+        const dayDate = new Date(year, month, day);
+        const dateStr = normalizeDate(dayDate.toString());
         monthDays.push({ date: dateStr, count: 0 });
       }
 
@@ -100,20 +118,11 @@ export const LeetCodeHeatmap = ({
           return;
         }
 
-        // Normalize date format if needed
-        let normalizedDate = activity.date;
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedDate)) {
-          // Convert any date format to YYYY-MM-DD
-          const date = new Date(normalizedDate);
-          if (!isNaN(date.getTime())) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, "0");
-            const day = String(date.getDate()).padStart(2, "0");
-            normalizedDate = `${year}-${month}-${day}`;
-          } else {
-            console.warn("Could not normalize date:", activity.date);
-            return;
-          }
+        // Use our utility function for normalization
+        const normalizedDate = normalizeDate(activity.date);
+        if (!normalizedDate) {
+          console.warn("Could not normalize date:", activity.date);
+          return;
         }
 
         const key = normalizedDate.slice(0, 7);
@@ -209,7 +218,7 @@ export const LeetCodeHeatmap = ({
       role="region"
       aria-label="Activity heatmap by month">
       <div className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-2 gap-y-5 sm:gap-x-4 sm:gap-y-2 md:gap-4 max-w-fit mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-3 md:gap-4 max-w-fit mx-auto">
           {data.map((month, monthIndex) => {
             const columns = chunkedDays(month.days, 7);
 
@@ -218,25 +227,44 @@ export const LeetCodeHeatmap = ({
                 <div className="text-sm sm:text-sm font-medium mb-2 sm:mb-2">
                   {month.name}
                 </div>
-                <div className="flex gap-[4px] sm:gap-[3px]">
+                <div className="flex gap-[4px] p-1 sm:gap-[3px]">
                   {columns.map((column, colIndex) => (
                     <div
                       key={colIndex}
                       className="flex flex-col gap-[4px] sm:gap-[3px]">
                       {column.map((day, dayIndex) => (
-                        <div
-                          key={dayIndex}
-                          className={`w-[12px] h-[12px] sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 sm:hover:ring-2 hover:ring-offset-1 sm:hover:ring-offset-2 hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
-                            day.count
-                          )}`}
-                          title={`${day.date}: ${day.count} ${
-                            day.count === 1 ? "activity" : "activities"
-                          }`}
-                          role="gridcell"
-                          aria-label={`${day.date}: ${day.count} ${
-                            day.count === 1 ? "activity" : "activities"
-                          }`}
-                        />
+                        <TooltipProvider key={dayIndex}>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div
+                                className={`w-[12px] h-[12px] sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 hover:ring-gray-400 dark:hover:ring-gray-500 hover:ring-offset-0 ${getColorClass(
+                                  day.count
+                                )}`}
+                                role="gridcell"
+                                aria-label={`${day.date}: ${day.count} ${
+                                  day.count === 1 ? "activity" : "activities"
+                                }`}
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <span className="font-medium">
+                                {new Date(day.date).toLocaleDateString(
+                                  undefined,
+                                  {
+                                    weekday: "short",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </span>
+                              <br />
+                              <span>
+                                {day.count}{" "}
+                                {day.count === 1 ? "activity" : "activities"}
+                              </span>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       ))}
                     </div>
                   ))}

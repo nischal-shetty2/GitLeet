@@ -86,7 +86,7 @@ export const InputForm = ({
           Track your GitHub and LeetCode contributions together
         </p>
       </CardHeader>
-      <CardContent className="space-y-6 pt-6">
+      <CardContent className="space-y-6 pt-2">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1 space-y-3 group">
             <label
