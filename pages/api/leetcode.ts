@@ -45,7 +45,9 @@ async function handler(
       },
       {
         headers: { "Content-Type": "application/json" },
-        timeout: 5000, // 5 second timeout
+        timeout: 8000, // Extended timeout for high load
+        maxBodyLength: 1024 * 500, // Limit response size
+        validateStatus: (status) => status < 500, // Only reject on server errors
       }
     );
 
@@ -72,16 +74,22 @@ async function handler(
         status === 404
           ? "LeetCode user not found"
           : status === 429
-          ? "LeetCode API rate limit exceeded"
+          ? "LeetCode API rate limit exceeded - please try again later"
           : "Failed to fetch LeetCode data";
 
       return res.status(status).json({ error: message });
     } else if (error instanceof Error && "request" in error) {
       // The request was made but no response was received
-      return res.status(504).json({ error: "LeetCode API timeout" });
+      console.error("Network error or timeout:", error.message);
+      return res
+        .status(504)
+        .json({ error: "LeetCode API timeout or network error" });
     } else {
       // Something happened in setting up the request that triggered an Error
-      res.status(500).json({ error: "Failed to fetch LeetCode data" });
+      console.error("Unexpected LeetCode API error:", error);
+      res.status(500).json({
+        error: "Failed to fetch LeetCode data. Please try again later.",
+      });
     }
   }
 }

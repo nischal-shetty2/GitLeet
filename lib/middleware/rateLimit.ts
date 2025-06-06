@@ -30,15 +30,33 @@ export const createRateLimiter = ({
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
     keyGenerator: (request) => keyGenerator(request as NextApiRequest),
     skip: () => {
-      // Skip rate limiting for certain situations if needed
-      // For example, you might want to skip for development or test environments
       return process.env.NODE_ENV === "development";
+    },
+    // Handle high load gracefully
+    handler: (req, res, next, options) => {
+      res.status(429).json({
+        error:
+          typeof options.message === "object"
+            ? options.message.error
+            : "Too many requests, please try again later",
+        retryAfter: Math.ceil(windowMs / 1000),
+        success: false,
+      });
     },
   });
 
   // Return a middleware function for Next.js API routes
   return (req: NextApiRequest, res: NextApiResponse, next: () => void) => {
-    return limiter(req, res, next);
+    try {
+      return limiter(req, res, next);
+    } catch (err) {
+      // Safety net for any errors in the rate limiting middleware
+      console.error("Rate limiter error:", err);
+      res.status(429).json({
+        error: "Server is currently under heavy load. Please try again later.",
+        success: false,
+      });
+    }
   };
 };
 

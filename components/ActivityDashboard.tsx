@@ -20,30 +20,64 @@ const ActivityDashboard = () => {
   const [githubUsername, setGithubUsername] = useState("nischal-shetty2");
   const [leetcodeUsername, setLeetcodeUsername] = useState("nischal_shetty");
   const { toast } = useToast();
+  const [isRetrying, setIsRetrying] = useState(false);
 
   // Custom hooks for data fetching with username state
   const github: GitHubDataHook = useGitHubData(githubUsername);
   const leetcode: LeetCodeDataHook = useLeetCodeData(leetcodeUsername);
 
-  // Handle errors with toast notifications
+  // Handle errors with toast notifications and retry logic
   useEffect(() => {
     if (github.error) {
       toast({
         title: "GitHub Error",
         description: github.error,
         variant: "destructive",
+        action:
+          github.error.includes("rate limit") ||
+          github.error.includes("timeout") ? (
+            <button
+              className="bg-secondary text-secondary-foreground px-2 py-1 rounded"
+              onClick={() => {
+                setIsRetrying(true);
+                setTimeout(() => {
+                  github.fetchData(githubUsername);
+                  setIsRetrying(false);
+                }, 3000);
+              }}
+              disabled={isRetrying}>
+              {isRetrying ? "Retrying..." : "Retry"}
+            </button>
+          ) : undefined,
       });
     }
+
     if (leetcode.error) {
       toast({
         title: "LeetCode Error",
         description: leetcode.error,
         variant: "destructive",
+        action:
+          leetcode.error.includes("rate limit") ||
+          leetcode.error.includes("timeout") ? (
+            <button
+              className="bg-secondary text-secondary-foreground px-2 py-1 rounded"
+              onClick={() => {
+                setIsRetrying(true);
+                setTimeout(() => {
+                  leetcode.fetchData(leetcodeUsername);
+                  setIsRetrying(false);
+                }, 3000);
+              }}
+              disabled={isRetrying}>
+              {isRetrying ? "Retrying..." : "Retry"}
+            </button>
+          ) : undefined,
       });
     }
-  }, [github.error, leetcode.error, toast]);
+  }, [github.error, leetcode.error, toast, githubUsername, leetcodeUsername]);
 
-  const isLoading = github.loading || leetcode.loading;
+  const isLoading = github.loading || leetcode.loading || isRetrying;
 
   // Improved combined data calculation with proper date normalization
   const combinedData = useMemo(() => {
@@ -143,6 +177,11 @@ const ActivityDashboard = () => {
                   <span className="inline-flex items-center rounded-md bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-500 ring-1 ring-inset ring-yellow-600/20">
                     Beta
                   </span>
+                  {(github.isFromCache || leetcode.isFromCache) && (
+                    <span className="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-500 ring-1 ring-inset ring-blue-600/20">
+                      Cached Data
+                    </span>
+                  )}
                 </div>
               </div>
             </CardHeader>

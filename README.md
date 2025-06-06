@@ -15,7 +15,7 @@ Gitleet is a platform that combines the GitHub contribution graph with the LeetC
 To install Gitleet, clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/yourusername/gitleet.git
+https://github.com/nischal-shetty2/GitLeet
 cd gitleet
 npm install
 ```

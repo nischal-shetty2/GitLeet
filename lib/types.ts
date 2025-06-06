@@ -40,6 +40,7 @@ export interface GitHubDataHook {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   fetchData: (username?: string) => Promise<void>;
+  isFromCache: boolean;
 }
 
 export interface LeetCodeDataHook {
@@ -49,4 +50,5 @@ export interface LeetCodeDataHook {
   error: string | null;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   fetchData: (username?: string) => Promise<void>;
+  isFromCache: boolean;
 }
