@@ -17,7 +17,7 @@ export default function Home() {
             name: "Gitleet",
             description:
               "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard.",
-            url: "https://gitleet.vercel.app",
+            url: "https://gitleet.tech",
             applicationCategory: "DeveloperApplication",
             operatingSystem: "Any",
             offers: {

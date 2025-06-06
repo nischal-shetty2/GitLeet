@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { withRateLimit } from "../../lib/middleware/rateLimit";
 import { withSecurity } from "../../lib/middleware/security";
 import axios from "axios";
+import { responseCache } from "@/lib/cache";
 
 interface GitHubResponse {
   data: {
@@ -38,6 +39,22 @@ async function handler(
 
   if (!username) {
     return res.status(400).json({ error: "Username is required" });
+  }
+
+  // Set response headers for better CDN caching
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=300, s-maxage=600, stale-while-revalidate=1800"
+  );
+
+  // Generate cache key
+  const cacheKey = `github:${username}`;
+
+  // Check if we have a fresh cached response
+  const cachedData = responseCache.get<GitHubResponse>(cacheKey);
+  if (cachedData) {
+    console.log(`[GitHub] Cache hit for ${username}`);
+    return res.status(200).json(cachedData);
   }
 
   try {
@@ -85,6 +102,9 @@ async function handler(
         .status(404)
         .json({ error: "No valid data found for this user" });
     }
+
+    // Cache the response for future requests - storing for 1 hour
+    responseCache.set(cacheKey, response.data, 60 * 60 * 1000);
 
     res.status(200).json(response.data);
   } catch (error: unknown) {

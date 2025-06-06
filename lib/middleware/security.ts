@@ -6,7 +6,7 @@ const cors = Cors({
   // Specify allowed origins or use true to allow any origin (not recommended for production)
   origin:
     process.env.NODE_ENV === "production"
-      ? ["https://git-leet.vercel.app", "https://gitleet.xyz"]
+      ? ["https://git-leet.vercel.app", "https://gitleet.tech"]
       : true,
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

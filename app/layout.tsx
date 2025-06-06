@@ -9,37 +9,56 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  fallback: ["monospace"],
 });
 
 export const metadata: Metadata = {
-  title: "Gitleet - GitHub & LeetCode Activity Tracker in One Dashboard",
+  title:
+    "Gitleet - Visualize GitHub & LeetCode Activity Together | Track Coding Progress",
   description:
-    "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity, streaks, and progress across both platforms.",
+    "Combine GitHub commits and LeetCode problem-solving in one dashboard. Track your coding streaks, visualize contributions, and analyze your programming journey. Perfect for tech interviews and skill progression tracking.",
   keywords: [
     "GitHub tracker",
     "LeetCode tracker",
-    "coding activity",
-    "developer dashboard",
-    "GitHub contributions",
-    "LeetCode submissions",
+    "coding activity dashboard",
+    "GitHub contributions visualization",
+    "LeetCode submissions tracker",
+    "developer portfolio tool",
     "coding streaks",
-    "programming activity",
+    "programming activity heatmap",
+    "GitHub and LeetCode stats",
     "developer analytics",
-    "code tracking",
+    "code commit history",
+    "tech interview preparation",
+    "programming activity tracker",
+    "GitHub commit graph",
+    "LeetCode problem tracker",
+    "coding consistency tracker",
   ],
-  authors: [{ name: "Nischal Shetty" }],
-  metadataBase: new URL("https://gitleet.vercel.app"),
+  authors: [
+    { name: "Nischal Shetty", url: "https://github.com/nischal-shetty2" },
+  ],
+  metadataBase: new URL("https://gitleet.tech"),
+  creator: "Nischal Shetty",
+  category: "Technology",
+  alternates: {
+    canonical: "https://gitleet.tech",
+  },
   openGraph: {
-    title: "Gitleet - GitHub & LeetCode Activity Tracker in One Dashboard",
+    title:
+      "Gitleet - GitHub & LeetCode Activity Dashboard | Track Your Coding Journey",
     description:
-      "Combine and track your GitHub contributions and LeetCode submissions in a single dashboard. Visualize your coding activity across platforms.",
-    url: "https://gitleet.vercel.app",
+      "Visualize GitHub and LeetCode contributions in one unified dashboard. Perfect for developers tracking interview prep, daily coding habits, and programming skills progression.",
+    url: "https://gitleet.tech",
     siteName: "Gitleet",
     images: [
       {
@@ -49,13 +68,27 @@ export const metadata: Metadata = {
         alt: "Gitleet - GitHub & LeetCode Activity Dashboard",
       },
     ],
+    locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gitleet - GitHub & LeetCode Activity Tracker",
-    description: "Track your GitHub and LeetCode activity in one place",
+    title: "Visualize GitHub & LeetCode Activity | Gitleet Dashboard",
+    description:
+      "Track GitHub commits and LeetCode submissions graph in one place.",
     images: ["/gitleet.jpg"],
+    creator: "@NischalShetty02",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
@@ -65,12 +98,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className="h-full"
+      itemScope
+      itemType="https://schema.org/WebSite">
       <head>
-        <link rel="canonical" href="https://gitleet.vercel.app" />
+        <link rel="canonical" href="https://gitleet.tech" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link rel="dns-prefetch" href="https://api.github.com" />
+        <link rel="dns-prefetch" href="https://leetcode.com" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#4f46e5" />
+        <meta name="msapplication-TileColor" content="#4f46e5" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

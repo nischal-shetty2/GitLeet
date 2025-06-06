@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import { withRateLimit } from "../../lib/middleware/rateLimit";
 import { withSecurity } from "../../lib/middleware/security";
+import { responseCache } from "@/lib/cache";
 
 interface LeetCodeResponse {
   data: {
@@ -28,6 +29,22 @@ async function handler(
 
   if (!username || typeof username !== "string") {
     return res.status(400).json({ error: "Username is required" });
+  }
+
+  // Set response headers for better CDN caching
+  res.setHeader(
+    "Cache-Control",
+    "public, max-age=600, s-maxage=1200, stale-while-revalidate=3600"
+  );
+
+  // Generate cache key
+  const cacheKey = `leetcode:${username}`;
+
+  // Check if we have a fresh cached response
+  const cachedData = responseCache.get<LeetCodeResponse>(cacheKey);
+  if (cachedData) {
+    console.log(`[LeetCode] Cache hit for ${username}`);
+    return res.status(200).json(cachedData);
   }
 
   try {
@@ -57,6 +74,9 @@ async function handler(
         .status(404)
         .json({ error: "No data found for this LeetCode user" });
     }
+
+    // Cache the response for future requests - storing for 2 hours
+    responseCache.set(cacheKey, response.data, 2 * 60 * 60 * 1000);
 
     res.status(200).json(response.data);
   } catch (error: unknown) {

@@ -1,0 +1,10 @@
+{
+  "name": "Gitleet - GitHub & LeetCode Activity Dashboard",
+  "short_name": "Gitleet",
+  "description": "Track GitHub commits and LeetCode problems in one dashboard",
+  "theme_color": "#4f46e5",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/?source=pwa"
+}

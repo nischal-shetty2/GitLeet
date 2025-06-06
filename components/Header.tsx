@@ -14,15 +14,17 @@ export const Header = () => {
         <div className="max-w-screen-xl mx-auto">
           <div className="flex justify-between items-center gap-4">
             <div className="relative">
-              <Image
-                alt="Gitleet - GitHub & LeetCode Activity Tracker"
-                width={115}
-                height={50}
-                src="/gitleet.jpg"
-                className="rounded-md contrast-125 shadow-sm hover:shadow-md transition-all duration-300"
-                priority
-                sizes="(max-width: 768px) 115px, 115px"
-              />
+              <div style={{ width: "115px" }}>
+                <Image
+                  alt="Gitleet - GitHub & LeetCode Activity Tracker"
+                  width={1200}
+                  height={630}
+                  src="/gitleet.jpg"
+                  className="rounded-md contrast-125 shadow-sm hover:shadow-md transition-all duration-300"
+                  priority
+                  sizes="115px"
+                />
+              </div>
               <div className="absolute inset-0 rounded-md bg-gradient-to-tr from-primary/5 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
             </div>
 

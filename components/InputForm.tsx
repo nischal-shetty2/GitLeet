@@ -67,6 +67,50 @@ export const InputForm = ({
     }
   };
 
+  // Preload API call when user likely intends to search
+  const handleUsernameInput = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    platform: "github" | "leetcode"
+  ) => {
+    const username = e.target.value;
+
+    if (platform === "github") {
+      setLocalGithubUsername(username);
+      // Preload GitHub API when username is at least 3 chars
+      if (username.length >= 3) {
+        const link = document.head.querySelector(
+          `link[rel="prefetch"][href*="/api/github?username=${encodeURIComponent(
+            username
+          )}"]`
+        );
+        if (!link) {
+          const newLink = document.createElement("link");
+          newLink.rel = "prefetch";
+          newLink.href = `/api/github?username=${encodeURIComponent(username)}`;
+          document.head.appendChild(newLink);
+        }
+      }
+    } else {
+      setLocalLeetcodeUsername(username);
+      // Preload LeetCode API when username is at least 3 chars
+      if (username.length >= 3) {
+        const link = document.head.querySelector(
+          `link[rel="prefetch"][href*="/api/leetcode?username=${encodeURIComponent(
+            username
+          )}"]`
+        );
+        if (!link) {
+          const newLink = document.createElement("link");
+          newLink.rel = "prefetch";
+          newLink.href = `/api/leetcode?username=${encodeURIComponent(
+            username
+          )}`;
+          document.head.appendChild(newLink);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     // Only fetch on initial mount if we have usernames
     if (localGithubUsername || localLeetcodeUsername) {
@@ -78,7 +122,7 @@ export const InputForm = ({
 
   return (
     <Card className="transform transition-all duration-300 hover:shadow-lg">
-      <CardContent className="space-y-6 pt-5">
+      <CardContent className="space-y-6 pt-5 mt-5">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1 space-y-3 group">
             <label
@@ -91,7 +135,7 @@ export const InputForm = ({
                 id="github-username"
                 placeholder="Enter GitHub username"
                 value={localGithubUsername}
-                onChange={(e) => setLocalGithubUsername(e.target.value)}
+                onChange={(e) => handleUsernameInput(e, "github")}
                 onKeyDown={handleKeyPress}
                 aria-describedby="github-desc"
                 autoComplete="username"
@@ -123,7 +167,9 @@ export const InputForm = ({
                 id="leetcode-username"
                 placeholder="Enter LeetCode username"
                 value={localLeetcodeUsername}
-                onChange={(e) => setLocalLeetcodeUsername(e.target.value)}
+                onChange={(e) => {
+                  handleUsernameInput(e, "leetcode");
+                }}
                 onKeyDown={handleKeyPress}
                 aria-describedby="leetcode-desc"
                 autoComplete="username"

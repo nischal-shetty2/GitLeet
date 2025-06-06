@@ -39,7 +39,8 @@ export const Footer = () => {
               </Link>
             </p>
             <p className="text-xs text-muted-foreground">
-              Track your GitHub and LeetCode contributions in one place
+              Your <strong>GitHub</strong> commits and <strong>LeetCode</strong>{" "}
+              submissions in one dashboard
             </p>
           </div>
 

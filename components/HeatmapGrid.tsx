@@ -7,7 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
 export const HeatmapGrid = ({
   platform,
   github,
@@ -344,13 +343,16 @@ export const HeatmapGrid = ({
     return `${baseColors[platform][0]} ${darkColors[platform][0]}`;
   };
 
-  const chunkedDays = (days: ActivityData[], size: number) => {
-    const chunks: ActivityData[][] = [];
-    for (let i = 0; i < days.length; i += size) {
-      chunks.push(days.slice(i, i + size));
-    }
-    return chunks;
-  };
+  const chunkedDays = useMemo(() => {
+    // Memoized chunking function for better performance
+    return (days: ActivityData[], size: number) => {
+      const chunks: ActivityData[][] = [];
+      for (let i = 0; i < days.length; i += size) {
+        chunks.push(days.slice(i, i + size));
+      }
+      return chunks;
+    };
+  }, []);
 
   return (
     <div className="w-full overflow-x-auto pb-1">
