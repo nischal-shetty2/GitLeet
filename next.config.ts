@@ -10,9 +10,6 @@ const nextConfig: NextConfig = {
   // Avoid hydration issues during high load
   reactStrictMode: true,
 
-  // More reliable during heavy traffic
-  swcMinify: true,
-
   // Performance optimizations
   compiler: {
     removeConsole:

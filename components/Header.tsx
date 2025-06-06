@@ -36,9 +36,7 @@ export const Header = () => {
                     ? "Switch to light mode"
                     : "Switch to dark mode"
                 }
-                onClick={() =>
-                  setTheme(!theme || theme === "dark" ? "light" : "dark")
-                }>
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
                 {theme === "dark" ? (
                   <Sun className="h-5 w-5 sm:h-5 sm:w-5" />
                 ) : (
