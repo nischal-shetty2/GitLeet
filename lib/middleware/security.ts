@@ -6,7 +6,7 @@ const cors = Cors({
   // Specify allowed origins or use true to allow any origin (not recommended for production)
   origin:
     process.env.NODE_ENV === "production"
-      ? ["https://gitleet.vercel.app"]
+      ? ["https://git-leet.vercel.app", "https://gitleet.xyz"]
       : true,
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -63,28 +63,6 @@ export async function setSecurityHeaders(
   }
 }
 
-// Validate API key if used
-export function validateApiKey(
-  req: NextApiRequest,
-  res: NextApiResponse
-): boolean {
-  // If API key validation is needed in the future
-  const apiKey = req.headers["x-api-key"];
-  const validApiKey = process.env.API_KEY;
-
-  // Skip validation if not in production or API key is not set
-  if (!validApiKey || process.env.NODE_ENV !== "production") {
-    return true;
-  }
-
-  if (apiKey !== validApiKey) {
-    res.status(401).json({ error: "Unauthorized: Invalid API key" });
-    return false;
-  }
-
-  return true;
-}
-
 // Apply all security middleware
 export const withSecurity =
   <T>(
@@ -100,11 +78,6 @@ export const withSecurity =
 
       // Set security headers
       await setSecurityHeaders(req, res);
-
-      // Validate API key if needed
-      if (!validateApiKey(req, res)) {
-        return;
-      }
 
       // Call the handler
       return handler(req, res);

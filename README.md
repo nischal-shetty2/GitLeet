@@ -12,13 +12,28 @@ Gitleet is a platform that combines the GitHub contribution graph with the LeetC
 
 ## Installation
 
-To install Gitleet, clone the repository and run the installation script:
+To install Gitleet, clone the repository and install dependencies:
 
 ```bash
 git clone https://github.com/yourusername/gitleet.git
 cd gitleet
-./install.sh
+npm install
 ```
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```
+# API Keys
+GITHUB_TOKEN=your_github_token_here
+
+# Environment
+NODE_ENV=development
+```
+
+- `GITHUB_TOKEN`: Required for GitHub API access
+- `NODE_ENV`: Set to 'development' locally, will be 'production' in deployed environments
 
 ## Usage
 
