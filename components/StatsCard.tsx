@@ -26,7 +26,9 @@ export const StatsCard = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button className="rounded-full p-1 hover:bg-muted transition-colors">
+                <button
+                  className="rounded-full p-1 hover:bg-muted transition-colors"
+                  aria-label={`Info about ${title}`}>
                   <InfoIcon size={14} className="text-muted-foreground" />
                 </button>
               </TooltipTrigger>

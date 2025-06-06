@@ -75,7 +75,16 @@ const ActivityDashboard = () => {
           ) : undefined,
       });
     }
-  }, [github.error, leetcode.error, toast, githubUsername, leetcodeUsername]);
+  }, [
+    github,
+    github.error,
+    leetcode,
+    leetcode.error,
+    toast,
+    githubUsername,
+    leetcodeUsername,
+    isRetrying,
+  ]);
 
   const isLoading = github.loading || leetcode.loading || isRetrying;
 

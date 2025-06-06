@@ -53,7 +53,6 @@ async function handler(
   // Check if we have a fresh cached response
   const cachedData = responseCache.get<GitHubResponse>(cacheKey);
   if (cachedData) {
-    console.log(`[GitHub] Cache hit for ${username}`);
     return res.status(200).json(cachedData);
   }
 

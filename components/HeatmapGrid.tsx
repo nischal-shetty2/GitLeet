@@ -297,6 +297,9 @@ export const HeatmapGrid = ({
     }
   }, [platform, github.data, leetcode.data]);
 
+  // Color mapping function for activity levels
+  // The button elements are used for better accessibility (WCAG 2.1 AA compliance)
+  // Larger touch targets improve usability on mobile devices
   const getColorClass = (count: number) => {
     const baseColors = {
       github: [
@@ -364,19 +367,24 @@ export const HeatmapGrid = ({
               {data.weeks?.map((week, weekIndex) => (
                 <div
                   key={weekIndex}
-                  className="flex flex-col gap-[2px] sm:gap-1">
+                  className="flex flex-col gap-[4px] sm:gap-[6px] md:gap-2">
                   {week.map((day, dayIndex) => (
                     <Tooltip key={`${weekIndex}-${dayIndex}`}>
                       <TooltipTrigger asChild>
-                        <div
-                          className={`w-[6px] h-[6px] sm:w-2 sm:h-2 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                        <button
+                          aria-label={
+                            day?.date
+                              ? `${day.date}: ${day.count} activities`
+                              : "No activity"
+                          }
+                          className={`w-[10px] h-[10px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[10px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
                             day?.count || 0
                           )}`}
                         />
                       </TooltipTrigger>
                       {day?.date && (
                         <TooltipContent side="top">
-                          <p>{`${day.date}: ${day.count} activitiessss`}</p>
+                          <p>{`${day.date}: ${day.count} activities`}</p>
                         </TooltipContent>
                       )}
                     </Tooltip>
@@ -397,22 +405,23 @@ export const HeatmapGrid = ({
                     <div className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">
                       {month.name}
                     </div>
-                    <div className="flex gap-[3px] sm:gap-[3px]">
+                    <div className="flex gap-[5px] sm:gap-[6px] md:gap-[8px]">
                       {columns.map((column, colIndex) => (
                         <div
                           key={colIndex}
-                          className="flex flex-col gap-[3px] sm:gap-[3px]">
+                          className="flex flex-col gap-[5px] sm:gap-[6px] md:gap-[8px]">
                           {column.map((day, dayIndex) => (
                             <Tooltip key={dayIndex}>
                               <TooltipTrigger asChild>
-                                <div
-                                  className={`w-[10px] h-[10px] sm:w-2 sm:h-2 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                                <button
+                                  aria-label={`${day.date}: ${day.count} activities`}
+                                  className={`w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[12px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
                                     day.count
                                   )}`}
                                 />
                               </TooltipTrigger>
                               <TooltipContent side="top">
-                                <p>{`${day.date}: ${day.count} activitiesss `}</p>
+                                <p>{`${day.date}: ${day.count} activities`}</p>
                               </TooltipContent>
                             </Tooltip>
                           ))}

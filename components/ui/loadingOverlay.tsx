@@ -5,9 +5,6 @@ export const LoadingOverlay = () => {
   // Optimize for faster page loading by reducing the number of skeleton elements
   // Only show 6 months (instead of 12) for faster initial render
   const months = Array(6).fill(null);
-
-  // Each month typically has around 30 days, which we'll organize in columns of 7 days
-  const daysPerMonth = 30;
   const columnsPerMonth = 4; // Reduce from 5 columns to 4 for faster rendering
 
   return (

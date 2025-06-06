@@ -43,7 +43,6 @@ async function handler(
   // Check if we have a fresh cached response
   const cachedData = responseCache.get<LeetCodeResponse>(cacheKey);
   if (cachedData) {
-    console.log(`[LeetCode] Cache hit for ${username}`);
     return res.status(200).json(cachedData);
   }
 
