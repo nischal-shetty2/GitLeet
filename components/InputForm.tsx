@@ -122,7 +122,7 @@ export const InputForm = ({
 
   return (
     <Card className="transform transition-all duration-300 hover:shadow-lg">
-      <CardContent className="space-y-6 pt-5 mt-5">
+      <CardContent className="space-y-6 sm:pt-5 mt-5">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1 space-y-3 group">
             <label

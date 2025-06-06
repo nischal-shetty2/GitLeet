@@ -1,12 +1,7 @@
 import React, { useMemo } from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { formatDateString, normalizeDate } from "@/lib/calendarUtils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { AdaptiveTooltip } from "@/components/ui/adaptive-tooltip";
 export const HeatmapGrid = ({
   platform,
   github,
@@ -362,77 +357,73 @@ export const HeatmapGrid = ({
       <div className={platform === "github" ? "inline-block" : "w-full"}>
         {data.type === "github" ? (
           // GitHub weekly view - horizontally scrollable on mobile
-          <TooltipProvider>
-            <div className="flex flex-nowrap gap-[2px] sm:gap-1 mx-auto">
-              {data.weeks?.map((week, weekIndex) => (
-                <div
-                  key={weekIndex}
-                  className="flex flex-col gap-[4px] sm:gap-[6px] md:gap-2">
-                  {week.map((day, dayIndex) => (
-                    <Tooltip key={`${weekIndex}-${dayIndex}`}>
-                      <TooltipTrigger asChild>
-                        <button
-                          aria-label={
-                            day?.date
-                              ? `${day.date}: ${day.count} activities`
-                              : "No activity"
-                          }
-                          className={`w-[10px] h-[10px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[10px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
-                            day?.count || 0
-                          )}`}
-                        />
-                      </TooltipTrigger>
-                      {day?.date && (
-                        <TooltipContent side="top">
-                          <p>{`${day.date}: ${day.count} activities`}</p>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </TooltipProvider>
+          <div className="flex flex-nowrap gap-[2px] sm:gap-1 mx-auto">
+            {data.weeks?.map((week, weekIndex) => (
+              <div
+                key={weekIndex}
+                className="flex flex-col gap-[4px] sm:gap-[6px] md:gap-2">
+                {week.map((day, dayIndex) => (
+                  <AdaptiveTooltip
+                    key={`${weekIndex}-${dayIndex}`}
+                    content={
+                      day?.date ? (
+                        <p>{`${day.date}: ${day.count} activities`}</p>
+                      ) : null
+                    }
+                    side="top">
+                    <button
+                      aria-label={
+                        day?.date
+                          ? `${day.date}: ${day.count} activities`
+                          : "No activity"
+                      }
+                      className={`w-[10px] h-[10px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[10px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                        day?.count || 0
+                      )}`}
+                    />
+                  </AdaptiveTooltip>
+                ))}
+              </div>
+            ))}
+          </div>
         ) : (
           // LeetCode monthly view - adding more horizontal spacing on mobile
-          <TooltipProvider>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2 sm:gap-3 md:gap-4 max-w-fit mx-auto">
-              {data.months?.map((month, monthIndex) => {
-                const columns = chunkedDays(month.days, 7);
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2 sm:gap-3 md:gap-4 max-w-fit mx-auto">
+            {data.months?.map((month, monthIndex) => {
+              const columns = chunkedDays(month.days, 7);
 
-                return (
-                  <div key={monthIndex} className="flex flex-col">
-                    <div className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">
-                      {month.name}
-                    </div>
-                    <div className="flex gap-[5px] sm:gap-[6px] md:gap-[8px]">
-                      {columns.map((column, colIndex) => (
-                        <div
-                          key={colIndex}
-                          className="flex flex-col gap-[5px] sm:gap-[6px] md:gap-[8px]">
-                          {column.map((day, dayIndex) => (
-                            <Tooltip key={dayIndex}>
-                              <TooltipTrigger asChild>
-                                <button
-                                  aria-label={`${day.date}: ${day.count} activities`}
-                                  className={`w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[12px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
-                                    day.count
-                                  )}`}
-                                />
-                              </TooltipTrigger>
-                              <TooltipContent side="top">
-                                <p>{`${day.date}: ${day.count} activities`}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
+              return (
+                <div key={monthIndex} className="flex flex-col">
+                  <div className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">
+                    {month.name}
                   </div>
-                );
-              })}
-            </div>
-          </TooltipProvider>
+                  <div className="flex gap-[5px] sm:gap-[6px] md:gap-[8px]">
+                    {columns.map((column, colIndex) => (
+                      <div
+                        key={colIndex}
+                        className="flex flex-col gap-[5px] sm:gap-[6px] md:gap-[8px]">
+                        {column.map((day, dayIndex) => (
+                          <AdaptiveTooltip
+                            key={dayIndex}
+                            content={
+                              <p>{`${day.date}: ${day.count} activities`}</p>
+                            }
+                            side="top">
+                            <button
+                              aria-label={`${day.date}: ${day.count} activities`}
+                              className={`w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] md:w-[16px] md:h-[16px] min-w-[12px] rounded transition-colors duration-200 hover:ring hover:ring-inset sm:hover:ring-[1px] hover:ring-gray-400 dark:hover:ring-gray-500 ${getColorClass(
+                                day.count
+                              )}`}
+                            />
+                          </AdaptiveTooltip>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </div>

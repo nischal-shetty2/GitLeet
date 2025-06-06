@@ -3,12 +3,7 @@ import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { normalizeDate } from "@/lib/calendarUtils";
 // Debug helper can be enabled during development if needed
 // import { validateHeatmapData } from "@/lib/heatmapValidation";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { AdaptiveTooltip } from "@/components/ui/adaptive-tooltip";
 
 export const LeetCodeHeatmap = ({
   github,
@@ -233,20 +228,10 @@ export const LeetCodeHeatmap = ({
                       key={colIndex}
                       className="flex flex-col gap-[4px] sm:gap-[3px]">
                       {column.map((day, dayIndex) => (
-                        <TooltipProvider key={dayIndex}>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <div
-                                className={`w-[12px] h-[12px] sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 hover:ring-gray-400 dark:hover:ring-gray-500 hover:ring-offset-0 ${getColorClass(
-                                  day.count
-                                )}`}
-                                role="gridcell"
-                                aria-label={`${day.date}: ${day.count} ${
-                                  day.count === 1 ? "activity" : "activities"
-                                }`}
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent>
+                        <AdaptiveTooltip
+                          key={dayIndex}
+                          content={
+                            <>
                               <span className="font-medium">
                                 {new Date(day.date).toLocaleDateString(
                                   undefined,
@@ -262,9 +247,18 @@ export const LeetCodeHeatmap = ({
                                 {day.count}{" "}
                                 {day.count === 1 ? "activity" : "activities"}
                               </span>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                            </>
+                          }>
+                          <div
+                            className={`w-[12px] h-[12px] sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded transition-colors duration-200 hover:ring-1 hover:ring-gray-400 dark:hover:ring-gray-500 hover:ring-offset-0 ${getColorClass(
+                              day.count
+                            )}`}
+                            role="gridcell"
+                            aria-label={`${day.date}: ${day.count} ${
+                              day.count === 1 ? "activity" : "activities"
+                            }`}
+                          />
+                        </AdaptiveTooltip>
                       ))}
                     </div>
                   ))}

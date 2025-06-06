@@ -2,10 +2,10 @@ import React from "react";
 import { Skeleton } from "./skeleton";
 
 export const LoadingOverlay = () => {
-  // Optimize for faster page loading by reducing the number of skeleton elements
-  // Only show 6 months (instead of 12) for faster initial render
-  const months = Array(6).fill(null);
-  const columnsPerMonth = 4; // Reduce from 5 columns to 4 for faster rendering
+  // Create 12 months for the heatmap (matching LeetCodeHeatmap structure)
+  const months = Array(12).fill(null);
+
+  const columnsPerMonth = 5; // ~30 days / 7 = ~4-5 columns
 
   return (
     <div className="w-full overflow-x-auto pb-3">

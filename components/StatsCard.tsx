@@ -1,11 +1,6 @@
 import { InfoIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { AdaptiveTooltip } from "@/components/ui/adaptive-tooltip";
 
 export const StatsCard = ({
   title,
@@ -23,20 +18,13 @@ export const StatsCard = ({
           {title}
         </CardTitle>
         {helpText && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className="rounded-full p-1 hover:bg-muted transition-colors"
-                  aria-label={`Info about ${title}`}>
-                  <InfoIcon size={14} className="text-muted-foreground" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent className="max-w-xs">
-                <p>{helpText}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <AdaptiveTooltip content={<p>{helpText}</p>} className="max-w-xs">
+            <button
+              className="rounded-full p-1 hover:bg-muted transition-colors"
+              aria-label={`Info about ${title}`}>
+              <InfoIcon size={14} className="text-muted-foreground" />
+            </button>
+          </AdaptiveTooltip>
         )}
       </div>
     </CardHeader>
