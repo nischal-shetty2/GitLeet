@@ -122,7 +122,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#4f46e5" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

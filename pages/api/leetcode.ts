@@ -31,11 +31,16 @@ async function handler(
     return res.status(400).json({ error: "Username is required" });
   }
 
-  // Set response headers for better CDN caching
+  // Set response headers for better CDN caching and Safari compatibility
   res.setHeader(
     "Cache-Control",
     "public, max-age=600, s-maxage=1200, stale-while-revalidate=3600"
   );
+
+  // Add CORS headers for Safari
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   // Generate cache key
   const cacheKey = `leetcode:${username}`;
@@ -47,6 +52,10 @@ async function handler(
   }
 
   try {
+    // Add timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     const response = await axios.post(
       "https://leetcode.com/graphql",
       {
@@ -60,15 +69,28 @@ async function handler(
         variables: { username },
       },
       {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
+        },
         timeout: 8000, // Extended timeout for high load
         maxBodyLength: 1024 * 500, // Limit response size
         validateStatus: (status) => status < 500, // Only reject on server errors
+        signal: controller.signal,
       }
     );
 
+    clearTimeout(timeoutId);
+
     // Validate response data format
     if (!response.data?.data?.matchedUser?.submissionCalendar) {
+      // Try to use cached data if response is invalid
+      const cachedData = responseCache.get<LeetCodeResponse>(cacheKey);
+      if (cachedData) {
+        return res.status(200).json(cachedData);
+      }
+
       return res
         .status(404)
         .json({ error: "No data found for this LeetCode user" });
@@ -83,6 +105,13 @@ async function handler(
       "LeetCode API error:",
       error instanceof Error ? error.message : error
     );
+
+    // Try to use cache if available on error
+    const cachedData = responseCache.get<LeetCodeResponse>(cacheKey);
+    if (cachedData) {
+      console.log("Using cached LeetCode data due to API error");
+      return res.status(200).json(cachedData);
+    }
 
     // Handle different types of errors
     if (axios.isAxiosError(error)) {

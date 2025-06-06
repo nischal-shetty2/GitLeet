@@ -216,20 +216,22 @@ export const LeetCodeHeatmap = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-3 md:gap-4 max-w-fit mx-auto">
           {data.map((month, monthIndex) => {
             const columns = chunkedDays(month.days, 7);
+            // Use a more stable key format including month name
+            const monthKey = `month-${monthIndex}-${month.name}`;
 
             return (
-              <div key={monthIndex} className="flex flex-col">
+              <div key={monthKey} className="flex flex-col">
                 <div className="text-sm sm:text-sm font-medium mb-2 sm:mb-2">
                   {month.name}
                 </div>
                 <div className="flex gap-[4px] p-1 sm:gap-[3px]">
                   {columns.map((column, colIndex) => (
                     <div
-                      key={colIndex}
+                      key={`col-${monthKey}-${colIndex}`}
                       className="flex flex-col gap-[4px] sm:gap-[3px]">
                       {column.map((day, dayIndex) => (
                         <AdaptiveTooltip
-                          key={dayIndex}
+                          key={`day-${day.date}-${dayIndex}`}
                           content={
                             <>
                               <span className="font-medium">

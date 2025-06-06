@@ -214,21 +214,25 @@ const ActivityDashboard = () => {
           <h2 className="sr-only">Coding Statistics and Streaks</h2>
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
             <MemoizedStatsCard
+              key="current-streak"
               title="Current Streak"
               value={`${combinedData.currentStreak} days`}
               helpText="Combined streak on GitHub and LeetCode"
             />
             <MemoizedStatsCard
+              key="longest-streak"
               title="Longest Streak"
               value={`${combinedData.longestStreak} days`}
               helpText="Longest combined streak on GitHub and LeetCode"
             />
             <MemoizedStatsCard
+              key="total-activity"
               title="Total Activity"
               value={combinedData.totalContributions}
               helpText="Contribution on GitHub and submissions on LeetCode"
             />
             <MemoizedStatsCard
+              key="average-per-day"
               title="Average Per Day"
               value={combinedData.averagePerDay.toFixed(1)}
               helpText="Average contributions + submissions"

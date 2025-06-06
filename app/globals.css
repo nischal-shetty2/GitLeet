@@ -4,6 +4,24 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-text-size-adjust: 100%; /* Prevents Safari from adjusting font sizes */
+  -webkit-font-smoothing: antialiased; /* Better text rendering in Safari */
+  -moz-osx-font-smoothing: grayscale;
+  background-color: hsl(
+    var(--background)
+  ); /* Explicit background color for Safari */
+}
+
+/* Safari-specific fixes */
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) {
+    body {
+      background-color: hsl(
+        var(--background)
+      ) !important; /* Force background in Safari */
+      color: hsl(var(--foreground)) !important; /* Force text color in Safari */
+    }
+  }
 }
 
 @layer base {
@@ -132,6 +150,17 @@ body {
 
 .dark ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Safari-specific styling */
+.safari {
+  background-color: white !important;
+  color: #0f172a !important;
+}
+
+.dark .safari {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
 }
 
 /* Add card hover effects */

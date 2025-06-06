@@ -41,11 +41,16 @@ async function handler(
     return res.status(400).json({ error: "Username is required" });
   }
 
-  // Set response headers for better CDN caching
+  // Set response headers for better CDN caching and Safari compatibility
   res.setHeader(
     "Cache-Control",
     "public, max-age=300, s-maxage=600, stale-while-revalidate=1800"
   );
+
+  // Add CORS headers for Safari
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   // Generate cache key
   const cacheKey = `github:${username}`;
@@ -75,28 +80,50 @@ async function handler(
       }
     `;
 
-    // Ensure GitHub token exists
-    if (!process.env.GITHUB_TOKEN) {
+    // Ensure GitHub token exists - use fallback for development
+    const githubToken = process.env.GITHUB_TOKEN;
+    if (!githubToken) {
       console.error("GitHub token is not configured");
+
+      // Try to use cached data if available
+      const cacheKey = `github:${username}`;
+      const cachedData = responseCache.get<GitHubResponse>(cacheKey);
+      if (cachedData) {
+        return res.status(200).json(cachedData);
+      }
+
       return res.status(500).json({ error: "Server configuration error" });
     }
+
+    // Add timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     const response = await axios.post(
       "https://api.github.com/graphql",
       { query, variables: { login: username } },
       {
         headers: {
-          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+          Authorization: `Bearer ${githubToken}`,
           "Content-Type": "application/json",
         },
         timeout: 8000, // Extended timeout for high load
         maxBodyLength: 1024 * 500, // Limit response size
         validateStatus: (status) => status < 500, // Only reject on server errors
+        signal: controller.signal,
       }
     );
 
+    clearTimeout(timeoutId);
+
     // Validate response data format
     if (!response.data?.data?.user?.contributionsCollection) {
+      // Try to use cached data if response is invalid
+      const cachedData = responseCache.get<GitHubResponse>(cacheKey);
+      if (cachedData) {
+        return res.status(200).json(cachedData);
+      }
+
       return res
         .status(404)
         .json({ error: "No valid data found for this user" });
@@ -111,6 +138,13 @@ async function handler(
       "GitHub API error:",
       error instanceof Error ? error.message : error
     );
+
+    // Try to use cache if available on error
+    const cachedData = responseCache.get<GitHubResponse>(cacheKey);
+    if (cachedData) {
+      console.log("Using cached GitHub data due to API error");
+      return res.status(200).json(cachedData);
+    }
 
     // Handle different types of errors
     if (axios.isAxiosError(error)) {

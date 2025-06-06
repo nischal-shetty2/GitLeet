@@ -40,10 +40,10 @@ export async function setSecurityHeaders(
   _req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Set strict Content-Security-Policy
+  // Set Content-Security-Policy with Safari compatibility
   res.setHeader(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self'; object-src 'none';"
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.vercel-insights.com; object-src 'none';"
   );
 
   // Prevent MIME type sniffing

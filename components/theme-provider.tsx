@@ -17,6 +17,15 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
   React.useEffect(() => {
     setMounted(true);
+
+    // Force Safari to use the correct background color
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    if (isSafari) {
+      document.body.classList.add("safari");
+      document.body.style.backgroundColor = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue("--background");
+    }
   }, []);
 
   // This helps ensure hydration doesn't cause a flash of unstyled content
