@@ -78,15 +78,7 @@ export const InputForm = ({
 
   return (
     <Card className="transform transition-all duration-300 hover:shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-background to-muted/20 rounded-t-xl">
-        <CardTitle id="usernames-section" className="text-xl">
-          Enter Usernames
-        </CardTitle>
-        <p className="text-sm text-muted-foreground mt-1">
-          Track your GitHub and LeetCode contributions together
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6 pt-2">
+      <CardContent className="space-y-6 pt-5">
         <div className="flex flex-col sm:flex-row gap-6">
           <div className="flex-1 space-y-3 group">
             <label

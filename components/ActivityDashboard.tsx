@@ -177,11 +177,6 @@ const ActivityDashboard = () => {
                   <span className="inline-flex items-center rounded-md bg-yellow-50 dark:bg-yellow-900/30 px-2 py-1 text-xs font-medium text-yellow-800 dark:text-yellow-500 ring-1 ring-inset ring-yellow-600/20">
                     Beta
                   </span>
-                  {(github.isFromCache || leetcode.isFromCache) && (
-                    <span className="inline-flex items-center rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-500 ring-1 ring-inset ring-blue-600/20">
-                      Cached Data
-                    </span>
-                  )}
                 </div>
               </div>
             </CardHeader>
@@ -222,12 +217,12 @@ const ActivityDashboard = () => {
             <MemoizedStatsCard
               title="Total Activity"
               value={combinedData.totalContributions}
-              helpText="Contribution on GitHub and submissions on LeetCode combined"
+              helpText="Contribution on GitHub and submissions on LeetCode"
             />
             <MemoizedStatsCard
               title="Average Per Day"
               value={combinedData.averagePerDay.toFixed(1)}
-              helpText="Average of contributions and submissions on GitHub + LeetCode"
+              helpText="Average contributions + submissions"
             />
           </div>
         </section>
