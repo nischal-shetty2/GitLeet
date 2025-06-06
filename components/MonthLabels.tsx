@@ -1,8 +1,8 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { months } from "@/lib/calendarUtils";
 
 export const MonthLabels = () => {
-  const monthLabels = useMemo(() => {
+  const getMonthLabels = () => {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 365);
     while (startDate.getDay() !== 0) startDate.setDate(startDate.getDate() - 1);
@@ -32,7 +32,9 @@ export const MonthLabels = () => {
     }
 
     return labels;
-  }, []);
+  };
+
+  const monthLabels = getMonthLabels();
 
   // Now we'll use percentages for positioning which will be more responsive
   return (

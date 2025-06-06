@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, memo, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatsCard } from "./StatsCard";
 import { calculateStreaks } from "@/lib/calculateStreaks";
@@ -11,10 +11,6 @@ import { GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { InputForm } from "./InputForm";
 import { LeetcodeLogo } from "./ui/logo";
 import { LeetCodeHeatmap } from "./LeetCodeHeatmap";
-
-// Memoizing sub-components to avoid unnecessary re-renders
-const MemoizedLeetCodeHeatmap = memo(LeetCodeHeatmap);
-const MemoizedStatsCard = memo(StatsCard);
 
 const ActivityDashboard = () => {
   const [githubUsername, setGithubUsername] = useState("nischal-shetty2");
@@ -89,7 +85,7 @@ const ActivityDashboard = () => {
   const isLoading = github.loading || leetcode.loading || isRetrying;
 
   // Improved combined data calculation with proper date normalization
-  const combinedData = useMemo(() => {
+  const getCombinedData = () => {
     // Defensive copies of data arrays
     const githubActivities = github.data ? [...github.data] : [];
     const leetcodeActivities = leetcode.data ? [...leetcode.data] : [];
@@ -107,7 +103,7 @@ const ActivityDashboard = () => {
       };
     }
 
-    // Normalize all dates and merge counts by date with robust date handling
+    // ...existing code for processing...
     const activityMap = new Map<string, number>();
     allActivities.forEach((activity) => {
       try {
@@ -152,7 +148,9 @@ const ActivityDashboard = () => {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     return calculateStreaks(deduplicatedActivities);
-  }, [github.data, leetcode.data]);
+  };
+
+  const combinedData = getCombinedData();
 
   return (
     <main className="min-h-screen p-3 sm:p-4 md:p-8 bg-background">
@@ -197,10 +195,7 @@ const ActivityDashboard = () => {
                   <div className="flex w-full">
                     <div className="flex flex-col w-full justify-center items-center overflow-x-auto">
                       <div className="min-w-fit">
-                        <MemoizedLeetCodeHeatmap
-                          github={github}
-                          leetcode={leetcode}
-                        />
+                        <LeetCodeHeatmap github={github} leetcode={leetcode} />
                       </div>
                     </div>
                   </div>
@@ -213,25 +208,25 @@ const ActivityDashboard = () => {
         <section aria-label="Activity statistics">
           <h2 className="sr-only">Coding Statistics and Streaks</h2>
           <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
-            <MemoizedStatsCard
+            <StatsCard
               key="current-streak"
               title="Current Streak"
               value={`${combinedData.currentStreak} days`}
               helpText="Combined streak on GitHub and LeetCode"
             />
-            <MemoizedStatsCard
+            <StatsCard
               key="longest-streak"
               title="Longest Streak"
               value={`${combinedData.longestStreak} days`}
               helpText="Longest combined streak on GitHub and LeetCode"
             />
-            <MemoizedStatsCard
+            <StatsCard
               key="total-activity"
               title="Total Activity"
               value={combinedData.totalContributions}
               helpText="Contribution on GitHub and submissions on LeetCode"
             />
-            <MemoizedStatsCard
+            <StatsCard
               key="average-per-day"
               title="Average Per Day"
               value={combinedData.averagePerDay.toFixed(1)}

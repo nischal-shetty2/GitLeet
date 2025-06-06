@@ -125,9 +125,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full bg-background text-foreground`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange>
+          defaultTheme="system"
+          enableSystem={true}>
           {children}
           <Analytics />
         </ThemeProvider>

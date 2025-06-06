@@ -41,16 +41,12 @@ async function handler(
     return res.status(400).json({ error: "Username is required" });
   }
 
-  // Set response headers for better CDN caching and Safari compatibility
-  res.setHeader(
-    "Cache-Control",
-    "public, max-age=300, s-maxage=600, stale-while-revalidate=1800"
-  );
+  // Set basic response headers
+  res.setHeader("Content-Type", "application/json");
 
   // Add CORS headers for Safari
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   // Generate cache key
   const cacheKey = `github:${username}`;

@@ -76,38 +76,8 @@ export const InputForm = ({
 
     if (platform === "github") {
       setLocalGithubUsername(username);
-      // Preload GitHub API when username is at least 3 chars
-      if (username.length >= 3) {
-        const link = document.head.querySelector(
-          `link[rel="prefetch"][href*="/api/github?username=${encodeURIComponent(
-            username
-          )}"]`
-        );
-        if (!link) {
-          const newLink = document.createElement("link");
-          newLink.rel = "prefetch";
-          newLink.href = `/api/github?username=${encodeURIComponent(username)}`;
-          document.head.appendChild(newLink);
-        }
-      }
     } else {
       setLocalLeetcodeUsername(username);
-      // Preload LeetCode API when username is at least 3 chars
-      if (username.length >= 3) {
-        const link = document.head.querySelector(
-          `link[rel="prefetch"][href*="/api/leetcode?username=${encodeURIComponent(
-            username
-          )}"]`
-        );
-        if (!link) {
-          const newLink = document.createElement("link");
-          newLink.rel = "prefetch";
-          newLink.href = `/api/leetcode?username=${encodeURIComponent(
-            username
-          )}`;
-          document.head.appendChild(newLink);
-        }
-      }
     }
   };
 

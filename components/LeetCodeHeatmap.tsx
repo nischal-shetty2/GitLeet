@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { ActivityData, GitHubDataHook, LeetCodeDataHook } from "@/lib/types";
 import { normalizeDate } from "@/lib/calendarUtils";
 // Debug helper can be enabled during development if needed
@@ -12,9 +12,9 @@ export const LeetCodeHeatmap = ({
   github: GitHubDataHook;
   leetcode: LeetCodeDataHook;
 }) => {
-  // Memoized data processing to improve performance
-  const data = useMemo(() => {
-    // Performance optimization: Early exit if no data
+  // Data processing without memoization to avoid hydration issues
+  const getData = () => {
+    // Early exit if no data
     if (github.data.length === 0 && leetcode.data.length === 0) {
       return [];
     }
@@ -155,10 +155,12 @@ export const LeetCodeHeatmap = ({
     });
 
     return months;
-  }, [github.data, leetcode.data]);
+  };
 
-  // Memoize color class to avoid recalculations
-  const getColorClass = React.useCallback((count: number) => {
+  const data = getData();
+
+  // Color class function without memoization
+  const getColorClass = (count: number) => {
     const baseColors = [
       "bg-gray-100",
       "bg-green-200",
@@ -183,18 +185,15 @@ export const LeetCodeHeatmap = ({
       }
     }
     return `${baseColors[0]} ${darkColors[0]}`;
-  }, []);
+  };
 
-  const chunkedDays = React.useCallback(
-    (days: ActivityData[], size: number) => {
-      const chunks: ActivityData[][] = [];
-      for (let i = 0; i < days.length; i += size) {
-        chunks.push(days.slice(i, i + size));
-      }
-      return chunks;
-    },
-    []
-  );
+  const chunkedDays = (days: ActivityData[], size: number) => {
+    const chunks: ActivityData[][] = [];
+    for (let i = 0; i < days.length; i += size) {
+      chunks.push(days.slice(i, i + size));
+    }
+    return chunks;
+  };
 
   // If there's no data, show an empty state message
   if (data.length === 0) {
